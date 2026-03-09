@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinguaQuest — AI-Powered English Learning</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Boogaloo&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #03060F;
+  --bg2: #080D1A;
+  --bg3: #0D1426;
+  --card: rgba(255,255,255,0.05);
+  --card-border: rgba(255,255,255,0.1);
+  --text: #F0F4FF;
+  --text2: #7A8FA8;
+  --text3: #4A5F78;
+  --green: #00E676; --green-d: #00C264; --green-glow: rgba(0,230,118,0.3);
+  --blue: #00B4FF;  --blue-d: #0090D6;  --blue-glow: rgba(0,180,255,0.3);
+  --purple: #B06EFF;--purple-d: #8A50D8;--purple-glow: rgba(176,110,255,0.3);
+  --orange: #FF7B2C;--orange-d: #D96020;--orange-glow: rgba(255,123,44,0.3);
+  --red: #FF4560;   --red-d: #D93850;   --red-glow: rgba(255,69,96,0.3);
+  --yellow: #FFD600;--yellow-d: #D4B000;--yellow-glow: rgba(255,214,0,0.3);
+  --cyan: #00E5FF;
+  /* Level colors */
+  --l1: #00E676; --l2: #00B4FF; --l3: #B06EFF;
+  --l4: #FF7B2C; --l5: #FF4560; --l6: #FFD600;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  cursor:default;
+}
+
+/* ─── CANVAS ─── */
+#bg-canvas,#confetti-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;
+}
+#confetti-canvas{z-index:9999;}
+
+/* ─── SCREENS ─── */
+.screen{
+  display:none;flex-direction:column;
+  position:relative;z-index:1;min-height:100vh;
+}
+.screen.active{
+  display:flex;
+  animation:screenIn .4s cubic-bezier(.34,1.2,.64,1) both;
+}
+@keyframes screenIn{
+  from{opacity:0;transform:translateY(16px) scale(.98);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+
+/* ─── LOADING OVERLAY ─── */
+#loading-overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(3,6,15,.9);
+  backdrop-filter:blur(12px);
+  z-index:500;
+  flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:24px;
+}
+#loading-overlay.show{display:flex;}
+.loading-ring{
+  width:72px;height:72px;
+  border-radius:50%;
+  border:4px solid rgba(255,255,255,.08);
+  border-top-color:var(--blue);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{
+  font-size:18px;font-weight:700;
+  color:var(--text2);
+  animation:breathe 1.4s ease-in-out infinite;
+}
+@keyframes breathe{0%,100%{opacity:.5}50%{opacity:1}}
+.loading-sub{font-size:14px;color:var(--text3);}
+
+/* ─── TOP NAV ─── */
+.top-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;
+  background:rgba(8,13,26,.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--card-border);
+  position:sticky;top:0;z-index:100;
+}
+.logo{
+  font-family:'Boogaloo',cursive;
+  font-size:26px;letter-spacing:1px;
+  background:linear-gradient(135deg,var(--blue),var(--cyan),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:gradientShift 4s ease infinite;
+  background-size:200%;
+}
+@keyframes gradientShift{0%{background-position:0%}50%{background-position:100%}100%{background-position:0%}}
+.nav-right{display:flex;gap:10px;align-items:center;}
+.stat-chip{
+  display:flex;align-items:center;gap:6px;
+  background:var(--card);
+  border:1px solid var(--card-border);
+  border-radius:100px;padding:6px 14px;
+  font-weight:800;font-size:14px;
+  transition:transform .2s,box-shadow .2s;
+}
+.stat-chip:hover{transform:translateY(-2px);}
+.stat-chip.fire{color:var(--orange);border-color:rgba(255,123,44,.3);box-shadow:0 0 12px rgba(255,123,44,.1);}
+.stat-chip.xp{color:var(--yellow);border-color:rgba(255,214,0,.3);box-shadow:0 0 12px rgba(255,214,0,.1);}
+.stat-chip.hp{color:var(--red);border-color:rgba(255,69,96,.3);box-shadow:0 0 12px rgba(255,69,96,.1);}
+
+/* ─── SPLASH ─── */
+#splash{
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 50%,#0A1628 0%,var(--bg) 70%);
+}
+.splash-inner{text-align:center;animation:splashIn .8s cubic-bezier(.34,1.56,.64,1);}
+@keyframes splashIn{from{opacity:0;transform:scale(.6) rotate(-8deg);}to{opacity:1;transform:scale(1) rotate(0);}}
+.splash-logo{font-family:'Boogaloo',cursive;font-size:64px;letter-spacing:3px;
+  background:linear-gradient(135deg,var(--green),var(--blue),var(--purple),var(--orange));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  background-size:300%;animation:gradientShift 3s ease infinite;}
+.splash-tagline{font-size:18px;color:var(--text2);margin-top:12px;letter-spacing:1px;}
+.splash-loader{
+  width:200px;height:4px;background:rgba(255,255,255,.08);
+  border-radius:100px;margin:40px auto 0;overflow:hidden;
+}
+.splash-loader-fill{
+  height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));
+  border-radius:100px;width:0%;
+  animation:splashLoad 2.2s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes splashLoad{0%{width:0}80%{width:90%}100%{width:100%}}
+
+/* ─── HOME ─── */
+.home-body{flex:1;padding:28px 24px;max-width:940px;margin:0 auto;width:100%;}
+
+.hero-banner{
+  background:linear-gradient(135deg,rgba(0,180,255,.12) 0%,rgba(176,110,255,.12) 50%,rgba(0,230,118,.08) 100%);
+  border:1px solid rgba(0,180,255,.2);
+  border-radius:28px;padding:32px;margin-bottom:28px;
+  position:relative;overflow:hidden;
+}
+.hero-banner::after{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events:none;
+}
+.hero-title{font-size:30px;font-weight:900;margin-bottom:6px;}
+.hero-title span{
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{color:var(--text2);font-size:15px;margin-bottom:24px;line-height:1.6;}
+.hero-cta{
+  display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:17px;
+  border:none;border-radius:16px;padding:14px 28px;cursor:pointer;
+  box-shadow:0 8px 32px rgba(0,180,255,.4);
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.hero-cta:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,180,255,.5);}
+.hero-cta:active{transform:translateY(1px);}
+
+.word-of-day{
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:20px;padding:20px 24px;margin-bottom:28px;
+  display:flex;align-items:center;gap:20px;
+  position:relative;overflow:hidden;
+}
+.word-of-day::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:4px;background:linear-gradient(180deg,var(--yellow),var(--orange));
+}
+.wod-badge{
+  background:rgba(255,214,0,.1);border:1px solid rgba(255,214,0,.2);
+  color:var(--yellow);font-size:11px;font-weight:800;
+  padding:4px 10px;border-radius:100px;text-transform:uppercase;letter-spacing:.5px;
+  white-space:nowrap;
+}
+.wod-word{font-size:22px;font-weight:900;color:var(--yellow);}
+.wod-def{font-size:13px;color:var(--text2);margin-top:2px;}
+.wod-example{font-size:12px;color:var(--text3);margin-top:4px;font-style:italic;}
+
+.xp-card{
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:20px;padding:18px 22px;margin-bottom:28px;
+}
+.xp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.lvl-label{font-weight:800;font-size:16px;}
+.lvl-badge{
+  font-family:'Fredoka One',cursive;font-size:13px;letter-spacing:.5px;
+  padding:4px 14px;border-radius:100px;
+  background:linear-gradient(135deg,var(--yellow),var(--orange));color:#000;
+}
+.xp-track{height:12px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;position:relative;}
+.xp-fill{
+  height:100%;border-radius:100px;
+  background:linear-gradient(90deg,var(--yellow),var(--green));
+  transition:width .9s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 0 12px rgba(0,230,118,.4);
+  position:relative;
+}
+.xp-fill::after{
+  content:'';position:absolute;top:1px;left:6px;right:6px;
+  height:4px;background:rgba(255,255,255,.25);border-radius:100px;
+}
+.xp-info{display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:var(--text3);}
+
+.section-label{
+  font-family:'Fredoka One',cursive;font-size:17px;letter-spacing:.5px;
+  color:var(--text2);margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+
+/* ─── LEVEL GRID ─── */
+.levels-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:14px;margin-bottom:32px;
+}
+.level-card{
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:22px;padding:24px;cursor:pointer;
+  transition:all .3s cubic-bezier(.34,1.2,.64,1);
+  position:relative;overflow:hidden;
+}
+.level-card::before{
+  content:'';position:absolute;inset:0;opacity:0;
+  transition:opacity .3s;border-radius:21px;
+}
+.level-card:hover{transform:translateY(-6px) scale(1.02);}
+.level-card:hover::before{opacity:1;}
+.level-card[data-lv="1"]{border-color:rgba(0,230,118,.2);}
+.level-card[data-lv="1"]::before{background:radial-gradient(circle at top left,rgba(0,230,118,.08),transparent);}
+.level-card[data-lv="1"]:hover{box-shadow:0 16px 50px rgba(0,230,118,.2);}
+.level-card[data-lv="2"]{border-color:rgba(0,180,255,.2);}
+.level-card[data-lv="2"]::before{background:radial-gradient(circle at top left,rgba(0,180,255,.08),transparent);}
+.level-card[data-lv="2"]:hover{box-shadow:0 16px 50px rgba(0,180,255,.2);}
+.level-card[data-lv="3"]{border-color:rgba(176,110,255,.2);}
+.level-card[data-lv="3"]::before{background:radial-gradient(circle at top left,rgba(176,110,255,.08),transparent);}
+.level-card[data-lv="3"]:hover{box-shadow:0 16px 50px rgba(176,110,255,.2);}
+.level-card[data-lv="4"]{border-color:rgba(255,123,44,.2);}
+.level-card[data-lv="4"]::before{background:radial-gradient(circle at top left,rgba(255,123,44,.08),transparent);}
+.level-card[data-lv="4"]:hover{box-shadow:0 16px 50px rgba(255,123,44,.2);}
+.level-card[data-lv="5"]{border-color:rgba(255,69,96,.2);}
+.level-card[data-lv="5"]::before{background:radial-gradient(circle at top left,rgba(255,69,96,.08),transparent);}
+.level-card[data-lv="5"]:hover{box-shadow:0 16px 50px rgba(255,69,96,.2);}
+.level-card[data-lv="6"]{border-color:rgba(255,214,0,.2);}
+.level-card[data-lv="6"]::before{background:radial-gradient(circle at top left,rgba(255,214,0,.08),transparent);}
+.level-card[data-lv="6"]:hover{box-shadow:0 16px 50px rgba(255,214,0,.2);}
+.lc-badge{
+  font-family:'Fredoka One',cursive;font-size:11px;letter-spacing:.8px;
+  padding:4px 10px;border-radius:100px;
+  background:rgba(255,255,255,.08);color:var(--text2);
+  display:inline-block;margin-bottom:12px;
+}
+.lc-icon{font-size:40px;margin-bottom:10px;display:block;}
+.lc-name{font-family:'Fredoka One',cursive;font-size:22px;letter-spacing:.5px;margin-bottom:4px;}
+.lc-desc{font-size:13px;color:var(--text2);line-height:1.5;}
+.lc-arrow{
+  position:absolute;right:20px;top:50%;transform:translateY(-50%);
+  font-size:20px;color:var(--text3);transition:all .3s;
+}
+.level-card:hover .lc-arrow{color:var(--text);transform:translateY(-50%) translateX(4px);}
+
+/* ─── CATEGORY CARDS ─── */
+.cats-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:14px;
+}
+.cat-card{
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:22px;padding:24px 22px;cursor:pointer;
+  transition:all .3s;position:relative;overflow:hidden;
+  display:flex;align-items:center;gap:18px;
+}
+.cat-card:hover{transform:translateX(6px);}
+.cat-icon-wrap{
+  width:56px;height:56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;flex-shrink:0;
+  background:rgba(255,255,255,.06);
+  transition:transform .3s;
+}
+.cat-card:hover .cat-icon-wrap{transform:scale(1.1) rotate(-5deg);}
+.cat-info{flex:1;}
+.cat-name{font-weight:800;font-size:16px;margin-bottom:3px;}
+.cat-desc{font-size:12px;color:var(--text2);}
+.cat-tag{
+  font-size:10px;font-weight:800;padding:3px 8px;border-radius:100px;
+  text-transform:uppercase;letter-spacing:.5px;
+  background:rgba(255,255,255,.06);color:var(--text3);
+  margin-top:6px;display:inline-block;
+}
+
+/* ─── SUBHEADER ─── */
+.sub-header{
+  padding:18px 24px;
+  background:rgba(8,13,26,.8);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--card-border);
+  display:flex;align-items:center;gap:16px;
+  position:sticky;top:0;z-index:100;
+}
+.back-btn{
+  background:var(--card);border:1px solid var(--card-border);
+  color:var(--text2);border-radius:12px;padding:8px 16px;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;
+  transition:all .2s;display:flex;align-items:center;gap:6px;
+}
+.back-btn:hover{border-color:var(--text2);color:var(--text);}
+.sub-title{font-family:'Fredoka One',cursive;font-size:22px;letter-spacing:.5px;}
+.sub-body{flex:1;padding:28px 24px;max-width:900px;margin:0 auto;width:100%;}
+
+/* ─── FLASHCARD ─── */
+.training-header{padding:28px 24px 0;max-width:760px;margin:0 auto;width:100%;}
+.training-body{flex:1;padding:0 24px 28px;max-width:760px;margin:0 auto;width:100%;}
+
+.fc-progress-wrap{
+  display:flex;align-items:center;gap:12px;margin-bottom:24px;
+}
+.fc-dots{display:flex;gap:6px;}
+.fc-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:rgba(255,255,255,.12);transition:all .4s;
+}
+.fc-dot.done{background:var(--green);box-shadow:0 0 8px var(--green-glow);}
+.fc-dot.current{background:var(--blue);box-shadow:0 0 8px var(--blue-glow);transform:scale(1.3);}
+
+.fc-count{font-size:13px;color:var(--text3);font-weight:700;}
+
+.flashcard-scene{
+  perspective:1200px;
+  width:100%;height:280px;
+  margin-bottom:20px;cursor:pointer;
+}
+.flashcard{
+  width:100%;height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform .65s cubic-bezier(.34,1.2,.64,1);
+}
+.flashcard.flipped{transform:rotateY(180deg);}
+.fc-face{
+  position:absolute;width:100%;height:100%;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:24px;padding:36px;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;
+}
+.fc-front{
+  background:linear-gradient(135deg,rgba(0,180,255,.12),rgba(176,110,255,.12));
+  border:1px solid rgba(0,180,255,.25);
+  box-shadow:0 0 40px rgba(0,180,255,.1);
+}
+.fc-back{
+  background:linear-gradient(135deg,rgba(0,230,118,.1),rgba(0,180,255,.1));
+  border:1px solid rgba(0,230,118,.25);
+  transform:rotateY(180deg);
+  box-shadow:0 0 40px rgba(0,230,118,.1);
+}
+.fc-pos{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  color:var(--blue);background:rgba(0,180,255,.1);padding:4px 12px;border-radius:100px;margin-bottom:16px;}
+.fc-word{font-family:'Fredoka One',cursive;font-size:48px;letter-spacing:1px;color:var(--text);margin-bottom:8px;}
+.fc-tap{font-size:13px;color:var(--text3);animation:breathe 2s ease-in-out infinite;}
+.fc-def{font-size:17px;font-weight:700;line-height:1.5;margin-bottom:16px;color:var(--text);}
+.fc-example{
+  font-size:14px;color:var(--blue);font-style:italic;
+  background:rgba(0,180,255,.08);padding:10px 16px;border-radius:12px;
+  border-left:3px solid var(--blue);text-align:left;width:100%;margin-bottom:12px;
+}
+.fc-tip{font-size:13px;color:var(--text2);display:flex;align-items:flex-start;gap:8px;text-align:left;}
+
+.confidence-row{display:flex;gap:10px;margin-bottom:20px;}
+.conf-btn{
+  flex:1;padding:12px;border-radius:14px;border:1px solid var(--card-border);
+  background:var(--card);color:var(--text2);cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;
+  transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.conf-btn:hover{transform:translateY(-2px);}
+.conf-btn.know{border-color:rgba(0,230,118,.3);}
+.conf-btn.know:hover{background:rgba(0,230,118,.1);color:var(--green);border-color:var(--green);}
+.conf-btn.learning{border-color:rgba(0,180,255,.3);}
+.conf-btn.learning:hover{background:rgba(0,180,255,.1);color:var(--blue);border-color:var(--blue);}
+.conf-btn.unsure{border-color:rgba(255,123,44,.3);}
+.conf-btn.unsure:hover{background:rgba(255,123,44,.1);color:var(--orange);border-color:var(--orange);}
+.conf-btn .conf-icon{font-size:22px;}
+
+.quiz-start-btn{
+  width:100%;padding:18px;border-radius:18px;border:none;
+  background:linear-gradient(135deg,var(--green),var(--blue));
+  color:white;font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;
+  cursor:pointer;letter-spacing:.5px;
+  box-shadow:0 8px 32px rgba(0,230,118,.3);
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.quiz-start-btn:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,230,118,.4);}
+.quiz-start-btn:active{transform:translateY(1px);}
+.quiz-start-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+/* ─── QUIZ SCREEN ─── */
+.quiz-wrap{flex:1;display:flex;flex-direction:column;max-width:760px;margin:0 auto;width:100%;padding:0 20px;}
+.quiz-top{display:flex;align-items:center;gap:14px;padding:18px 0;}
+.quit-btn{
+  background:var(--card);border:1px solid var(--card-border);color:var(--text2);
+  width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;
+}
+.quit-btn:hover{border-color:var(--red);color:var(--red);box-shadow:0 0 12px var(--red-glow);}
+.q-progress-wrap{flex:1;background:rgba(255,255,255,.06);border-radius:100px;height:14px;overflow:hidden;}
+.q-progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));
+  border-radius:100px;transition:width .5s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 0 10px rgba(0,230,118,.4);
+}
+.q-hearts{display:flex;gap:3px;}
+.heart{font-size:20px;transition:all .4s;}
+.heart.lost{filter:grayscale(1);opacity:.25;transform:scale(.75);}
+
+/* QUESTION CARD */
+.q-card{
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:26px;padding:32px;
+  margin:16px 0;
+  animation:cardIn .45s cubic-bezier(.34,1.2,.64,1) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateX(30px) scale(.96);}to{opacity:1;transform:translateX(0) scale(1);}}
+.q-type-badge{
+  display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;
+  letter-spacing:1px;padding:4px 12px;border-radius:100px;margin-bottom:16px;
+}
+.badge-mcq{background:rgba(0,180,255,.15);color:var(--blue);border:1px solid rgba(0,180,255,.3);}
+.badge-fill{background:rgba(0,230,118,.15);color:var(--green);border:1px solid rgba(0,230,118,.3);}
+.badge-arrange{background:rgba(176,110,255,.15);color:var(--purple);border:1px solid rgba(176,110,255,.3);}
+.q-text{font-size:21px;font-weight:800;line-height:1.4;margin-bottom:6px;}
+.q-hint{font-size:13px;color:var(--text3);margin-bottom:24px;display:flex;align-items:center;gap:6px;}
+.q-hint span{
+  background:rgba(255,214,0,.08);color:var(--yellow);
+  padding:3px 10px;border-radius:100px;font-weight:700;
+}
+
+/* MCQ OPTIONS */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.opt{
+  background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.08);
+  color:var(--text);font-family:'Nunito',sans-serif;font-weight:700;font-size:15px;
+  padding:15px 18px;border-radius:16px;cursor:pointer;text-align:left;
+  transition:all .18s;display:flex;align-items:center;gap:12px;
+  position:relative;overflow:hidden;
+}
+.opt:hover:not(:disabled){border-color:var(--blue);background:rgba(0,180,255,.07);transform:translateY(-2px);}
+.opt:disabled{cursor:default;}
+.opt.correct{border-color:var(--green)!important;background:rgba(0,230,118,.12)!important;color:var(--green)!important;animation:pulseOk .5s;}
+.opt.wrong{border-color:var(--red)!important;background:rgba(255,69,96,.12)!important;color:var(--red)!important;animation:shakeIt .4s;}
+.opt.selected{border-color:var(--blue);background:rgba(0,180,255,.1);}
+@keyframes pulseOk{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
+@keyframes shakeIt{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.opt-letter{
+  width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;flex-shrink:0;transition:all .2s;
+}
+.opt.correct .opt-letter{background:var(--green);color:#000;}
+.opt.wrong .opt-letter{background:var(--red);color:#fff;}
+.opt.selected .opt-letter{background:var(--blue);color:#fff;}
+
+/* FILL INPUT */
+.fill-wrap{position:relative;}
+.fill-in{
+  width:100%;background:rgba(255,255,255,.05);
+  border:2px solid rgba(255,255,255,.1);
+  color:var(--text);font-family:'Nunito',sans-serif;font-weight:700;
+  font-size:20px;padding:18px 22px;border-radius:16px;
+  outline:none;text-align:center;transition:all .2s;letter-spacing:.5px;
+}
+.fill-in:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,180,255,.1);}
+.fill-in.correct{border-color:var(--green)!important;background:rgba(0,230,118,.08);color:var(--green);box-shadow:0 0 0 3px rgba(0,230,118,.1);}
+.fill-in.wrong{border-color:var(--red)!important;background:rgba(255,69,96,.08);color:var(--red);animation:shakeIt .4s;}
+
+/* ARRANGE */
+.arrange-answer-zone{
+  min-height:58px;background:rgba(255,255,255,.04);
+  border:2px dashed rgba(255,255,255,.12);
+  border-radius:16px;padding:12px 16px;
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  margin-bottom:14px;transition:all .2s;
+}
+.arrange-answer-zone.has-words{border-color:var(--blue);border-style:solid;}
+.arrange-answer-zone.correct{border-color:var(--green)!important;border-style:solid;background:rgba(0,230,118,.06);}
+.arrange-answer-zone.wrong{border-color:var(--red)!important;border-style:solid;background:rgba(255,69,96,.06);}
+.word-bank{display:flex;flex-wrap:wrap;gap:8px;}
+.bank-word{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  color:var(--text);font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;
+  padding:9px 15px;border-radius:10px;cursor:pointer;transition:all .2s;user-select:none;
+}
+.bank-word:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,180,255,.2);}
+.bank-word.used{opacity:.2;pointer-events:none;}
+.placed-word{
+  background:var(--blue);color:white;
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;
+  padding:8px 14px;border-radius:9px;cursor:pointer;
+  animation:popIn .2s cubic-bezier(.34,1.56,.64,1);transition:all .2s;
+}
+@keyframes popIn{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.placed-word:hover{background:var(--blue-d);transform:scale(1.06);}
+.arrange-answer-zone.correct .placed-word{background:var(--green);color:#000;cursor:default;}
+.arrange-answer-zone.wrong .placed-word{background:var(--red);cursor:default;}
+.arrange-empty-hint{color:var(--text3);font-size:13px;}
+
+/* FEEDBACK PANEL */
+.feedback{
+  padding:18px 22px;border-radius:18px;margin-top:6px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  animation:slideUpFade .3s ease both;
+}
+@keyframes slideUpFade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.feedback.correct{background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.3);}
+.feedback.wrong{background:rgba(255,69,96,.1);border:1px solid rgba(255,69,96,.3);}
+.fb-label{font-weight:800;font-size:17px;}
+.feedback.correct .fb-label{color:var(--green);}
+.feedback.wrong .fb-label{color:var(--red);}
+.fb-detail{font-size:13px;color:var(--text2);margin-top:3px;}
+.fb-explain{font-size:12px;color:var(--text3);margin-top:2px;font-style:italic;}
+.next-btn{
+  background:var(--green);color:#000;
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:15px;
+  border:none;border-radius:14px;padding:12px 22px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,230,118,.35);transition:all .15s;white-space:nowrap;flex-shrink:0;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,230,118,.45);}
+.next-btn.red{background:var(--red);color:white;box-shadow:0 4px 16px var(--red-glow);}
+.next-btn.red:hover{box-shadow:0 8px 24px var(--red-glow);}
+
+/* SUBMIT ROW */
+.submit-row{padding:12px 0 24px;display:flex;justify-content:flex-end;}
+.check-btn{
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  color:white;font-family:'Nunito',sans-serif;font-weight:900;
+  font-size:17px;border:none;border-radius:16px;padding:15px 40px;cursor:pointer;
+  box-shadow:0 6px 28px rgba(0,180,255,.4);
+  transition:all .18s;text-transform:uppercase;letter-spacing:1px;
+  position:relative;overflow:hidden;
+}
+.check-btn:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(0,180,255,.5);}
+.check-btn:active{transform:translateY(2px);}
+.check-btn:disabled{
+  background:rgba(255,255,255,.06);box-shadow:none;cursor:not-allowed;
+  transform:none;color:var(--text3);border:1px solid var(--card-border);
+}
+
+/* ─── RESULTS ─── */
+.results-body{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px 24px;max-width:620px;margin:0 auto;width:100%;text-align:center;
+}
+.res-trophy{
+  font-size:90px;margin-bottom:20px;
+  animation:trophyBounce .7s cubic-bezier(.34,1.56,.64,1);
+  filter:drop-shadow(0 0 30px rgba(255,214,0,.4));
+}
+@keyframes trophyBounce{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.res-title{font-family:'Boogaloo',cursive;font-size:48px;letter-spacing:2px;margin-bottom:6px;}
+.res-sub{font-size:16px;color:var(--text2);margin-bottom:32px;}
+.res-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;margin-bottom:32px;}
+.res-stat{
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:20px;padding:20px 12px;
+  animation:statIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.res-stat:nth-child(1){animation-delay:.1s}
+.res-stat:nth-child(2){animation-delay:.2s}
+.res-stat:nth-child(3){animation-delay:.3s}
+@keyframes statIn{from{opacity:0;transform:translateY(20px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+.res-stat-val{font-family:'Fredoka One',cursive;font-size:36px;display:block;margin-bottom:4px;}
+.res-stat-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.res-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.btn-go{
+  background:linear-gradient(135deg,var(--green),var(--cyan));
+  color:#000;font-family:'Nunito',sans-serif;font-weight:900;
+  font-size:17px;border:none;border-radius:16px;padding:15px 36px;cursor:pointer;
+  box-shadow:0 8px 28px rgba(0,230,118,.35);transition:all .2s;
+}
+.btn-go:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,230,118,.45);}
+.btn-back{
+  background:var(--card);color:var(--text);
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:17px;
+  border:1px solid var(--card-border);border-radius:16px;padding:15px 28px;
+  cursor:pointer;transition:all .2s;
+}
+.btn-back:hover{border-color:var(--text2);}
+
+/* ─── LEADERBOARD ─── */
+.lb{
+  background:var(--card);border:1px solid var(--card-border);
+  border-radius:20px;overflow:hidden;margin-bottom:40px;
+}
+.lb-row{
+  display:flex;align-items:center;gap:14px;
+  padding:13px 20px;border-bottom:1px solid rgba(255,255,255,.04);
+  transition:background .2s;
+}
+.lb-row:last-child{border-bottom:none;}
+.lb-row:hover{background:rgba(255,255,255,.02);}
+.lb-row.you{background:rgba(0,230,118,.04);}
+
+/* ─── XP POPUP ─── */
+.xp-pop{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--yellow),var(--orange));
+  color:#000;font-weight:900;font-size:17px;
+  padding:10px 24px;border-radius:100px;z-index:400;
+  animation:xpUp 1.6s ease forwards;pointer-events:none;
+  box-shadow:0 4px 20px rgba(255,214,0,.4);
+}
+@keyframes xpUp{
+  0%{opacity:0;transform:translateX(-50%) translateY(16px) scale(.8)}
+  25%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.1)}
+  60%{opacity:1;transform:translateX(-50%) translateY(-12px) scale(1)}
+  100%{opacity:0;transform:translateX(-50%) translateY(-50px) scale(.9)}
+}
+
+/* ─── MODAL ─── */
+.modal-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(3,6,15,.85);backdrop-filter:blur(12px);
+  z-index:300;align-items:center;justify-content:center;
+}
+.modal-bg.show{display:flex;}
+.modal{
+  background:linear-gradient(135deg,rgba(13,20,38,1),rgba(8,13,26,1));
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:30px;padding:44px;max-width:400px;width:90%;text-align:center;
+  animation:bounceIn .5s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 24px 80px rgba(0,0,0,.6);
+}
+@keyframes bounceIn{from{transform:scale(.5) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.modal-icon{font-size:72px;margin-bottom:16px;}
+.modal-title{font-family:'Boogaloo',cursive;font-size:32px;letter-spacing:1px;margin-bottom:8px;}
+.modal-body{font-size:15px;color:var(--text2);line-height:1.7;margin-bottom:28px;}
+
+/* ─── RIPPLE ─── */
+.ripple{
+  position:absolute;border-radius:50%;
+  background:rgba(255,255,255,.2);transform:scale(0);
+  animation:rippleAnim .6s ease;pointer-events:none;
+}
+@keyframes rippleAnim{to{transform:scale(4);opacity:0}}
+
+/* ─── FOOTER ─── */
+footer{
+  text-align:center;padding:28px 20px;
+  border-top:1px solid var(--card-border);
+  color:var(--text3);font-size:13px;
+  background:rgba(8,13,26,.6);
+  backdrop-filter:blur(10px);
+  position:relative;z-index:1;
+  line-height:1.8;
+}
+footer strong{color:var(--text2);}
+footer .heart{color:var(--red);font-size:15px;animation:heartbeat 1.2s ease-in-out infinite;}
+@keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:600px){
+  .opts{grid-template-columns:1fr;}
+  .res-stats{grid-template-columns:1fr 1fr;}
+  .levels-grid{grid-template-columns:1fr;}
+  .cats-grid{grid-template-columns:1fr;}
+  .hero-title{font-size:22px;}
+  .fc-word{font-size:36px;}
+  .q-text{font-size:17px;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<canvas id="confetti-canvas"></canvas>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+  <div class="loading-ring"></div>
+  <div class="loading-text" id="loading-text">AI is crafting your lesson...</div>
+  <div class="loading-sub" id="loading-sub">Personalising content for your level</div>
+</div>
+
+<!-- STREAK MODAL -->
+<div class="modal-bg" id="streak-modal">
+  <div class="modal">
+    <div class="modal-icon" id="sm-icon">🔥</div>
+    <div class="modal-title" id="sm-title">Daily Streak!</div>
+    <div class="modal-body" id="sm-body">Keep the flame alive. Complete today's lesson to extend your streak!</div>
+    <button class="btn-go" onclick="closeModal('streak-modal')" style="width:100%">Let's Go! 🚀</button>
+  </div>
+</div>
+
+<!-- LEVEL UP MODAL -->
+<div class="modal-bg" id="levelup-modal">
+  <div class="modal">
+    <div class="modal-icon">⭐</div>
+    <div class="modal-title">Level Up!</div>
+    <div class="modal-body" id="lu-body">You've reached a new level. Keep going!</div>
+    <button class="btn-go" onclick="closeModal('levelup-modal')" style="width:100%">Awesome! 🎉</button>
+  </div>
+</div>
+
+<!-- ===================== SPLASH ===================== -->
+<div id="splash-screen" class="screen active">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div class="splash-inner">
+      <div class="splash-logo">🌍 LinguaQuest</div>
+      <div class="splash-tagline">AI-Powered English Learning — Learn. Train. Master.</div>
+      <div class="splash-loader"><div class="splash-loader-fill"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== HOME ===================== -->
+<div id="home-screen" class="screen">
+  <nav class="top-nav">
+    <div class="logo">🌍 LinguaQuest</div>
+    <div class="nav-right">
+      <div class="stat-chip fire">🔥 <span id="nav-streak">3</span></div>
+      <div class="stat-chip xp">⚡ <span id="nav-xp">240</span></div>
+      <div class="stat-chip hp">❤️ <span id="nav-hp">5</span></div>
+    </div>
+  </nav>
+  <div class="home-body">
+    <div class="hero-banner">
+      <div class="hero-title">Ready to level up, <span id="hero-level-name">Explorer</span>? 🚀</div>
+      <div class="hero-sub">Your AI tutor is standing by. Choose a level, learn with flashcards, then prove yourself in the quiz!</div>
+      <button class="hero-cta" onclick="showScreen('level-screen')">⚡ Start Learning</button>
+    </div>
+
+    <div class="word-of-day" id="wod-card">
+      <div>
+        <div class="wod-badge">✨ Word of the Day</div>
+        <div class="wod-word" id="wod-word">Loading...</div>
+        <div class="wod-def" id="wod-def"></div>
+        <div class="wod-example" id="wod-ex"></div>
+      </div>
+    </div>
+
+    <div class="xp-card">
+      <div class="xp-top">
+        <div>
+          <div class="lvl-label">Level <span id="home-lvl">4</span> — <span id="home-rank">Explorer</span></div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px;"><span id="xp-cur">240</span> / <span id="xp-max">500</span> XP</div>
+        </div>
+        <div class="lvl-badge">⭐ LVL <span id="lvl-badge-num">4</span></div>
+      </div>
+      <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:48%"></div></div>
+      <div class="xp-info"><span>Level <span id="xp-curlvl">4</span></span><span>Level <span id="xp-nextlvl">5</span></span></div>
+    </div>
+
+    <div class="section-label">📚 Choose Your Level</div>
+    <div class="levels-grid" id="levels-grid"></div>
+
+    <div class="section-label">🏆 Leaderboard</div>
+    <div class="lb" id="lb-list"></div>
+  </div>
+  <footer>
+    <strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;
+    Made with <span class="heart">❤️</span> in India. &nbsp;
+    Developed by <strong>SubhraniL</strong>.
+  </footer>
+</div>
+
+<!-- ===================== LEVEL SELECT ===================== -->
+<div id="level-screen" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="showScreen('home-screen')">← Back</button>
+    <div class="sub-title">🎯 Select Your Level</div>
+  </div>
+  <div class="sub-body">
+    <div style="color:var(--text2);font-size:14px;margin-bottom:20px;line-height:1.6;">
+      Choose the level that best matches your current English ability. Don't worry — you can change it anytime!
+    </div>
+    <div class="levels-grid" id="level-cards-grid"></div>
+  </div>
+  <footer>
+    <strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;
+    Made with <span class="heart">❤️</span> in India. &nbsp;
+    Developed by <strong>SubhraniL</strong>.
+  </footer>
+</div>
+
+<!-- ===================== CATEGORY SELECT ===================== -->
+<div id="category-screen" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="showScreen('level-screen')">← Back</button>
+    <div class="sub-title" id="cat-screen-title">📖 Choose Category</div>
+  </div>
+  <div class="sub-body">
+    <div style="color:var(--text2);font-size:14px;margin-bottom:20px;">
+      Each category starts with an AI-powered <strong style="color:var(--blue)">Training Mode</strong> 🃏 — learn with flashcards, then take the <strong style="color:var(--green)">Quiz</strong> 🧠
+    </div>
+    <div class="cats-grid" id="cat-grid"></div>
+  </div>
+  <footer>
+    <strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;
+    Made with <span class="heart">❤️</span> in India. &nbsp;
+    Developed by <strong>SubhraniL</strong>.
+  </footer>
+</div>
+
+<!-- ===================== TRAINING ===================== -->
+<div id="training-screen" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="showScreen('category-screen')">← Back</button>
+    <div class="sub-title">🃏 Training Mode</div>
+    <div style="margin-left:auto;font-size:13px;color:var(--text3);" id="training-level-tag"></div>
+  </div>
+  <div class="training-header">
+    <div class="fc-progress-wrap">
+      <div class="fc-dots" id="fc-dots"></div>
+      <div class="fc-count" id="fc-count">Card 1 of 5</div>
+    </div>
+  </div>
+  <div class="training-body">
+    <div class="flashcard-scene" onclick="flipCard()">
+      <div class="flashcard" id="flashcard">
+        <div class="fc-face fc-front" id="fc-front">
+          <div class="fc-pos" id="fc-pos">noun</div>
+          <div class="fc-word" id="fc-word">Word</div>
+          <div class="fc-tap">👆 Tap to reveal</div>
+        </div>
+        <div class="fc-face fc-back" id="fc-back">
+          <div class="fc-def" id="fc-def">Definition here</div>
+          <div class="fc-example" id="fc-example">Example sentence</div>
+          <div class="fc-tip" id="fc-tip"><span>💡</span><span>Memory tip</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="confidence-row" id="conf-row" style="display:none">
+      <button class="conf-btn know" onclick="rateCard('know')">
+        <span class="conf-icon">😎</span> Got it!
+      </button>
+      <button class="conf-btn learning" onclick="rateCard('learning')">
+        <span class="conf-icon">🤔</span> Learning
+      </button>
+      <button class="conf-btn unsure" onclick="rateCard('unsure')">
+        <span class="conf-icon">😅</span> Tricky
+      </button>
+    </div>
+
+    <button class="quiz-start-btn" id="quiz-start-btn" disabled onclick="beginQuiz()">
+      🧠 Start Quiz — Test Your Knowledge!
+    </button>
+  </div>
+  <footer>
+    <strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;
+    Made with <span class="heart">❤️</span> in India. &nbsp;
+    Developed by <strong>SubhraniL</strong>.
+  </footer>
+</div>
+
+<!-- ===================== QUIZ ===================== -->
+<div id="quiz-screen" class="screen">
+  <div class="quiz-wrap">
+    <div class="quiz-top">
+      <button class="quit-btn" onclick="exitQuiz()">✕</button>
+      <div class="q-progress-wrap">
+        <div class="q-progress-fill" id="q-progress" style="width:0%"></div>
+      </div>
+      <div class="q-hearts" id="q-hearts"></div>
+    </div>
+    <div id="q-area"></div>
+    <div id="fb-area"></div>
+    <div class="submit-row">
+      <button class="check-btn" id="check-btn" disabled onclick="checkAnswer()">CHECK ✓</button>
+    </div>
+  </div>
+  <footer>
+    <strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;
+    Made with <span class="heart">❤️</span> in India. &nbsp;
+    Developed by <strong>SubhraniL</strong>.
+  </footer>
+</div>
+
+<!-- ===================== RESULTS ===================== -->
+<div id="results-screen" class="screen">
+  <div class="results-body">
+    <div class="res-trophy" id="res-trophy">🏆</div>
+    <div class="res-title" id="res-title" style="color:var(--yellow)">AMAZING!</div>
+    <div class="res-sub" id="res-sub">You completed the quiz!</div>
+    <div class="res-stats">
+      <div class="res-stat">
+        <span class="res-stat-val" id="r-xp" style="color:var(--yellow)">+0</span>
+        <span class="res-stat-lbl">⚡ XP Earned</span>
+      </div>
+      <div class="res-stat">
+        <span class="res-stat-val" id="r-acc" style="color:var(--green)">0%</span>
+        <span class="res-stat-lbl">🎯 Accuracy</span>
+      </div>
+      <div class="res-stat">
+        <span class="res-stat-val" id="r-time" style="color:var(--blue)">0s</span>
+        <span class="res-stat-lbl">⏱️ Time</span>
+      </div>
+    </div>
+    <div id="res-streak-bonus" style="display:none;background:rgba(255,123,44,.1);border:1px solid rgba(255,123,44,.3);border-radius:16px;padding:14px 20px;width:100%;text-align:center;margin-bottom:24px;font-weight:700;color:var(--orange);">🔥 Streak Bonus: +20 XP</div>
+    <div class="res-actions">
+      <button class="btn-go" onclick="retryQuiz()">🔄 Try Again</button>
+      <button class="btn-back" onclick="showScreen('home-screen')">🏠 Home</button>
+    </div>
+  </div>
+  <footer>
+    <strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;
+    Made with <span class="heart">❤️</span> in India. &nbsp;
+    Developed by <strong>SubhraniL</strong>.
+  </footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════
+const LEVELS = [
+  { id:1, code:'A1', name:'Starter', desc:'Just beginning your English journey. Basic greetings, colours, numbers and simple phrases.', icon:'🐣', color:'var(--l1)' },
+  { id:2, code:'A2', name:'Elementary', desc:'Familiar with everyday words and phrases. Can handle simple, direct exchanges.', icon:'🌱', color:'var(--l2)' },
+  { id:3, code:'B1', name:'Intermediate', desc:'Can deal with most situations while travelling. Can produce simple connected text.', icon:'📚', color:'var(--l3)' },
+  { id:4, code:'B2', name:'Upper-Intermediate', desc:'Can understand main ideas of complex text. Interacts with a degree of fluency.', icon:'💡', color:'var(--l4)' },
+  { id:5, code:'C1', name:'Advanced', desc:'Can express ideas fluently and spontaneously. Uses language flexibly and effectively.', icon:'🎯', color:'var(--l5)' },
+  { id:6, code:'C2', name:'Expert', desc:'Near-native mastery. Can understand virtually everything heard or read with ease.', icon:'👑', color:'var(--l6)' },
+];
+
+const CATEGORIES = [
+  { id:'vocabulary', name:'Vocabulary', icon:'📖', desc:'Expand your word bank — meanings, synonyms & antonyms', tag:'Words & Definitions' },
+  { id:'grammar', name:'Grammar', icon:'✍️', desc:'Tenses, articles, prepositions and sentence structure', tag:'Rules & Structure' },
+  { id:'idioms', name:'Idioms & Phrases', icon:'💬', desc:'Native expressions, phrasal verbs and proverbs', tag:'Natural Speech' },
+  { id:'spelling', name:'Spelling', icon:'🔤', desc:'Master tricky English spellings and word formation', tag:'Word Formation' },
+  { id:'conversation', name:'Conversation', icon:'🗣️', desc:'Dialogue, social phrases and real-world communication', tag:'Real-World Use' },
+  { id:'reading', name:'Reading & Inference', icon:'📰', desc:'Comprehension, inference and critical reading skills', tag:'Comprehension' },
+];
+
+const LEADERBOARD = [
+  { name:'Alex K.', xp:1820, flag:'🇺🇸' },
+  { name:'Priya S.', xp:1650, flag:'🇮🇳' },
+  { name:'Kim J.', xp:1430, flag:'🇰🇷' },
+  { name:'You', xp:0, flag:'⭐', you:true },
+  { name:'Carlos R.', xp:210, flag:'🇧🇷' },
+];
+
+const RANKS = ['Beginner','Learner','Explorer','Scholar','Master','Legend','Grandmaster'];
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let S = {
+  streak: 3, xp: 240, level: 4, hearts: 5, maxHearts: 5,
+  selectedLevel: null, selectedCategory: null,
+};
+let quiz = {
+  questions:[], idx:0, correct:0, wrong:0, start:0,
+  answered:false, mcqSel:null, arranged:[], arrangeAns:'',
+  category:'', lvlCode:'',
+};
+let training = { cards:[], idx:0, flipped:false, done:[] };
+
+// ═══════════════════════════════════════════
+//  FALLBACK CONTENT (used if API fails)
+// ═══════════════════════════════════════════
+const FB_CARDS = {
+  vocabulary: [
+    { word:'Benevolent', partOfSpeech:'adjective', definition:'Well-meaning and kindly; generous in nature.', example:'The benevolent teacher stayed after class to help struggling students.', tip:'Think BEN = good (Latin). A benevolent person does GOOD things.' },
+    { word:'Ephemeral', partOfSpeech:'adjective', definition:'Lasting for a very short time; transitory.', example:'The beauty of cherry blossoms is ephemeral — they fade within a week.', tip:'Think of "ephemera" — things like cinema tickets kept briefly then thrown away.' },
+    { word:'Eloquent', partOfSpeech:'adjective', definition:'Fluent and persuasive in speaking or writing.', example:'Her eloquent speech moved the entire audience to tears.', tip:'ELO + QUENT: "elocution" also comes from the same root — speaking well.' },
+    { word:'Pragmatic', partOfSpeech:'adjective', definition:'Dealing with things sensibly and realistically.', example:'A pragmatic approach to the problem saved the company thousands of pounds.', tip:'PRAGMA in Greek means "deed" — a pragmatic person focuses on what actually works.' },
+    { word:'Tenacious', partOfSpeech:'adjective', definition:'Holding firm to a purpose; persistent; not giving up.', example:'The tenacious student practised every day until she mastered English.', tip:'TEN = hold (Latin). Tenacious people HOLD ON to their goals.' },
+  ],
+  grammar: [
+    { word:'Present Perfect', partOfSpeech:'tense', definition:'Used for actions that happened at an unspecified time or actions that started in the past and continue now.', example:'I have visited Paris three times. (unspecified time)', tip:'HAVE/HAS + past participle. Ask: "Is the exact time important?" If no — use present perfect!' },
+    { word:'Subjunctive Mood', partOfSpeech:'grammar concept', definition:'A verb form expressing wishes, hypothetical situations or commands.', example:'I wish I were taller. (not "was" — subjunctive!)', tip:'After "wish", "if only", "as if" — always use WERE not WAS for all subjects.' },
+    { word:'Passive Voice', partOfSpeech:'sentence structure', definition:'When the subject of the sentence receives the action rather than performing it.', example:'The cake was eaten by the children. (passive = focus on the cake)', tip:'BE + past participle. Useful when the doer is unknown or unimportant.' },
+    { word:'Relative Clause', partOfSpeech:'grammar concept', definition:'A clause that gives more information about a noun in the main sentence.', example:'The book that I borrowed was fascinating. (defines which book)', tip:'WHO for people, WHICH for things, THAT for both. WHOSE = belonging to.' },
+    { word:'Conditional (Type 2)', partOfSpeech:'tense', definition:'Expresses hypothetical situations in the present/future and their imagined results.', example:'If I had a million pounds, I would travel the world.', tip:'IF + past simple → WOULD + base verb. Remember: NOT "would" in the IF clause!' },
+  ],
+  idioms: [
+    { word:'Hit the nail on the head', partOfSpeech:'idiom', definition:'To describe exactly what is causing a situation or problem.', example:'"You hit the nail on the head — poor communication is our biggest issue."', tip:'Imagine hitting a nail perfectly in one strike. Perfect accuracy!' },
+    { word:'Bite the bullet', partOfSpeech:'idiom', definition:'To endure a painful or difficult situation with courage.', example:'I hate dentists, but I bit the bullet and booked an appointment.', tip:'From old surgery — patients bit bullets to endure pain. Now: face something hard!' },
+    { word:'Break the ice', partOfSpeech:'idiom', definition:'To initiate conversation in an awkward or tense social situation.', example:'He told a joke to break the ice at the start of the meeting.', tip:'Old ships had to break through frozen water to start moving. Now: start a conversation!' },
+    { word:'Under the weather', partOfSpeech:'idiom', definition:'Feeling slightly ill or unwell.', example:'"I\'m feeling a bit under the weather — I might skip the party tonight."', tip:'Sailors felt sick during bad weather at sea. Now it just means feeling unwell.' },
+    { word:'Spill the beans', partOfSpeech:'idiom', definition:'To reveal a secret or confidential information accidentally or indiscreetly.', example:'Don\'t spill the beans about the surprise party!', tip:'Ancient Greeks voted with beans in urns. Spilling them revealed the secret vote!' },
+  ],
+  spelling: [
+    { word:'Accommodate', partOfSpeech:'verb', definition:'To provide space or to adapt to someone\'s needs.', example:'The hotel can accommodate up to 200 guests.', tip:'Remember: 2 Cs and 2 Ms! AC-COM-MO-DATE. Double double!' },
+    { word:'Necessary', partOfSpeech:'adjective', definition:'Required to be done; absolutely needed.', example:'It is necessary to practise English every day.', tip:'1 collar (C), 2 socks (S). One C, two S\'s: NeCeSSary.' },
+    { word:'Embarrass', partOfSpeech:'verb', definition:'To cause someone to feel awkward or ashamed.', example:'She was embarrassed when she forgot her lines.', tip:'Double R, double S: em-BAR-RASS. Think: Really Really Awkward Situation Situation!' },
+    { word:'Definitely', partOfSpeech:'adverb', definition:'Without doubt; certainly.', example:'I will definitely study English tonight.', tip:'The word FINITE hides inside: de-FINITE-ly. Never "definately"!' },
+    { word:'Occurrence', partOfSpeech:'noun', definition:'An incident or event; the fact of something happening.', example:'Such an occurrence had never been seen before.', tip:'Double C, double R: oc-CUR-Rence. Think: it OCCURRED twice!' },
+  ],
+  conversation: [
+    { word:'Small talk', partOfSpeech:'noun phrase', definition:'Polite conversation about unimportant or uncontroversial matters.', example:'"Nice weather, isn\'t it?" — classic British small talk!', tip:'Topics: weather, weekend plans, local news. AVOID: money, politics, religion, personal questions!' },
+    { word:'Backchanneling', partOfSpeech:'noun', definition:'Brief verbal/non-verbal signals showing a listener is engaged ("mm", "yes", "I see").', example:'"I see", "Right", "Uh-huh" — all backchannels.', tip:'Use these to show you\'re listening WITHOUT interrupting. Very important in English!' },
+    { word:'Hedging language', partOfSpeech:'noun phrase', definition:'Language used to avoid being too direct or to soften statements.', example:'"It might be worth considering..." instead of "You should..."', tip:'Use: might, could, perhaps, it seems, I think, possibly. Sounds more polite and natural!' },
+    { word:'Filler phrases', partOfSpeech:'noun phrase', definition:'Words or phrases used to fill pauses in speech while thinking.', example:'"Well...", "You know...", "I mean...", "Sort of..."', tip:'Native speakers use these constantly! They buy thinking time. Just don\'t overdo it.' },
+    { word:'Formal vs Informal register', partOfSpeech:'concept', definition:'The level of formality in language depending on the social context.', example:'Formal: "I would like to enquire..." Informal: "I was just wondering..."', tip:'Match your register to your audience. Job interview = formal. Text to friend = informal.' },
+  ],
+  reading: [
+    { word:'Inference', partOfSpeech:'noun', definition:'A conclusion reached by reasoning from evidence rather than from explicit statements.', example:'From the story, we can infer that the character was frightened.', tip:'The text IMPLIES; the reader INFERS. Look for clues — body language, setting, word choice.' },
+    { word:'Context clues', partOfSpeech:'noun phrase', definition:'Information in surrounding text that helps determine the meaning of an unfamiliar word.', example:'The arid — dry and barren — desert stretched for miles.', tip:'Look BEFORE and AFTER the unknown word. Definitions, synonyms or examples are often nearby.' },
+    { word:'Main idea', partOfSpeech:'noun phrase', definition:'The most important point the author wants to communicate in a text.', example:'The main idea is often in the first or last sentence of a paragraph.', tip:'Ask: "What is this paragraph MAINLY about?" 1 sentence summary = the main idea.' },
+    { word:'Tone and Mood', partOfSpeech:'literary terms', definition:'Tone = author\'s attitude. Mood = reader\'s feeling while reading.', example:'A dark, stormy description creates a foreboding mood.', tip:'Tone words: optimistic, critical, sarcastic. Mood words: tense, peaceful, frightening.' },
+    { word:'Skimming vs Scanning', partOfSpeech:'reading strategies', definition:'Skimming = reading quickly for general meaning. Scanning = searching for specific info.', example:'Skim to get the gist; scan to find a date or name.', tip:'Skim = overview. Scan = spotlight. Both are essential exam and real-world skills!' },
+  ],
+};
+
+const FB_QUESTIONS = {
+  vocabulary: [
+    { type:'mcq', question:'What does "Benevolent" mean?', options:['Kind and generous','Angry and rude','Extremely clever','Lazy and slow'], answer:0, hint:'Think: BEN = good in Latin', explanation:'"Benevolent" comes from Latin bene (well) + volens (wishing) — literally "well-wishing".' },
+    { type:'mcq', question:'"Ephemeral" describes something that is...', options:['Long-lasting','Short-lived','Extremely large','Very difficult'], answer:1, hint:'Think of a mayfly — lives only one day', explanation:'"Ephemeral" comes from Greek ephemeros — lasting only a day.' },
+    { type:'fill', question:'A "tenacious" person never gives up — they are extremely _______.', answer:'persistent', hint:'They keep trying no matter what', explanation:'"Persistent" and "tenacious" are synonyms — both mean not giving up.' },
+    { type:'mcq', question:'"Pragmatic" means dealing with things in a...', options:['Dreamy, idealistic way','Angry, aggressive way','Sensible, realistic way','Slow, careful way'], answer:2, hint:'Focused on what actually WORKS', explanation:'"Pragmatic" comes from Greek "pragma" meaning deed or action.' },
+    { type:'arrange', question:'Arrange the words into a correct sentence:', words:['is','The','most','approach','pragmatic','the','effective'], answer:'The most pragmatic approach is the most effective', hint:'Start with "The most pragmatic..."', explanation:'Adjective order: article + superlative adjective + noun.' },
+    { type:'fill', question:'Her _______ speech moved the entire audience to tears.', answer:'eloquent', hint:'Beautifully and persuasively spoken', explanation:'"Eloquent" describes exceptionally clear and persuasive speech or writing.' },
+  ],
+  grammar: [
+    { type:'mcq', question:'Which sentence uses the Present Perfect correctly?', options:["I have seen that film yesterday.","I have seen that film recently.","I have saw that film.","I seen that film."], answer:1, hint:'Present perfect is for unspecified or recent time', explanation:'Present perfect CANNOT be used with specific past time expressions like "yesterday".' },
+    { type:'fill', question:'I wish I _______ (be) taller. (Use subjunctive mood)', answer:'were', hint:'Subjunctive uses "were" for all subjects after "wish"', explanation:'The subjunctive mood requires "were" (not "was") for hypothetical/unreal situations.' },
+    { type:'mcq', question:'Select the correct passive voice construction:', options:["The letter written by John.","The letter was write by John.","The letter was written by John.","The letter were written by John."], answer:2, hint:'Passive = BE + past participle', explanation:'Passive voice: Subject + was/were + past participle (+ by + agent).' },
+    { type:'arrange', question:'Arrange the words to form a correct Type 2 conditional:', words:['I','had','would','million','If','travel','a','I'], answer:'If I had a million I would travel', hint:'IF + past simple, WOULD + base verb', explanation:'Type 2 conditional: If + past simple → would + base verb. Used for hypothetical situations.' },
+    { type:'fill', question:'The book _______ (borrow) from the library was fascinating. (Use relative clause)', answer:'which I borrowed', hint:'Use a defining relative clause with "which"', explanation:'Use "which" for things in defining relative clauses. "I borrowed" is the verb phrase.' },
+    { type:'mcq', question:'Choose the grammatically correct sentence:', options:["Neither the teachers nor the student were happy.","Neither the teachers nor the student was happy.","Neither the teachers nor the students were happy.","Neither the teacher nor students was happy."], answer:2, hint:'With "neither...nor", the verb agrees with the NEAREST subject', explanation:'The nearest subject is "students" (plural), so "were" is correct.' },
+  ],
+  idioms: [
+    { type:'mcq', question:'"Hit the nail on the head" means you...', options:['Did carpentry work','Said exactly the right thing','Made a big mistake','Hurt yourself'], answer:1, hint:'Perfect accuracy with words', explanation:'This idiom means your analysis or description is exactly right.' },
+    { type:'fill', question:'"Break the _______" means to start a conversation in an awkward situation.', answer:'ice', hint:'Ships used to need to break through frozen water', explanation:'Old icebreaker ships had to break through ice to start moving — now it means initiating conversation.' },
+    { type:'mcq', question:'If someone is "under the weather", they are...', options:['Very happy','Standing outside','Feeling slightly ill','Working hard'], answer:2, hint:'Sailors felt unwell during bad weather', explanation:'This idiom means feeling slightly unwell or out of sorts.' },
+    { type:'arrange', question:'Arrange the words to form a complete idiom:', words:['beans','the','Spill','about','do','not','the','surprise'], answer:'do not Spill the beans about the surprise', hint:'Spill the beans = reveal a secret', explanation:'"Spill the beans" means to reveal confidential information accidentally.' },
+    { type:'fill', question:'"Bite the _______" means to endure something painful with courage.', answer:'bullet', hint:'Old surgical practice during operations', explanation:'Before anaesthesia, patients bit bullets to endure surgery. Now it means facing something hard bravely.' },
+    { type:'mcq', question:'"Bite off more than you can chew" means to...', options:['Eat too much food','Take on too many responsibilities','Speak rudely to someone','Work very slowly'], answer:1, hint:'You literally cannot chew it all!', explanation:'This idiom means to take on more work or responsibility than you can handle.' },
+  ],
+  spelling: [
+    { type:'mcq', question:'Which word is spelled correctly?', options:['Accomodate','Accommadate','Accommodate','Accomadaate'], answer:2, hint:'Double C, double M: AC-COM-MO-DATE', explanation:'"Accommodate" has double C and double M. One of the most commonly misspelled English words.' },
+    { type:'fill', question:'Nece____ry: Something that must be done. Complete the spelling.', answer:'necessary', hint:'1 collar (C), 2 socks (SS)', explanation:'"Necessary" has ONE C and TWO Ss. A common mistake is writing "neccessary" or "necesary".' },
+    { type:'mcq', question:'Which is the correct spelling?', options:['Definately','Definitley','Definitely','Definetly'], answer:2, hint:'The word FINITE hides inside it', explanation:'"Definitely" contains the word "finite" — de-FINITE-ly. Never "definately"!' },
+    { type:'fill', question:'Em______ment: The feeling of shame or awkwardness.', answer:'embarrassment', hint:'Double R, double S', explanation:'"Embarrassment" has double R and double S: em-BAR-RASS-ment.' },
+    { type:'mcq', question:'Choose the correctly spelled word:', options:['Occurance','Occurence','Occurrance','Occurrence'], answer:3, hint:'Double C, double R: oc-CUR-rence', explanation:'"Occurrence" has double C and double R. It comes from the verb "occur" (also double C).' },
+    { type:'arrange', question:'Arrange the letters into a correctly spelled word (rearrange these words into a sentence):', words:['spelled','is','Accommodate','correctly','this'], answer:'Accommodate is spelled correctly this', hint:'Accommodate = double C, double M', explanation:'"Accommodate" is one of the most misspelled words — remember: 2 Cs, 2 Ms.' },
+  ],
+  conversation: [
+    { type:'mcq', question:'What is "small talk"?', options:["Talking to short people","Polite conversation about unimportant matters","A very quiet conversation","Talking about your problems"], answer:1, hint:'Weather, weekend plans, light topics...', explanation:'Small talk is casual conversation about neutral topics — very important in English-speaking cultures.' },
+    { type:'fill', question:'Using "It might be worth considering..." instead of "You should..." is an example of _______ language.', answer:'hedging', hint:'Language that softens or avoids being too direct', explanation:'Hedging language makes statements less direct and more polite — essential in professional English.' },
+    { type:'mcq', question:'Which response is the most appropriate formal reply to "Thank you for your email"?', options:["No probs!","Cheers!","Thank you for your prompt response.","Whatever, sure."], answer:2, hint:'Match the formal register of the original message', explanation:'In formal/professional contexts, maintain formal register. Informal responses seem unprofessional.' },
+    { type:'arrange', question:'Arrange these words into a polite question:', words:['whether','wonder','I','could','I','possible','if','you','help'], answer:'I wonder if I could possibly help you whether', hint:'Start with "I wonder if..."', explanation:'Indirect questions with "I wonder if/whether" are more polite than direct questions.' },
+    { type:'fill', question:'Brief sounds or phrases like "Mm-hmm", "I see" and "Right" used while listening are called _______.', answer:'backchannels', hint:'They show you are listening without interrupting', explanation:'Backchannels are listening signals that encourage the speaker to continue without interrupting.' },
+    { type:'mcq', question:'Which phrase uses the correct level of formality for a job interview?', options:["Yeah, I\'m pretty good at that.","I excel in that area and have significant experience.","Totally, like, I\'m great at it!","Sure thing, I do that all the time."], answer:1, hint:'Job interviews require formal register', explanation:'Formal contexts require precise vocabulary, no contractions where possible, and professional tone.' },
+  ],
+  reading: [
+    { type:'mcq', question:'What is an "inference" in reading comprehension?', options:['A direct quote from the text','A conclusion drawn from evidence not explicitly stated','A summary of the text','The author\'s main argument'], answer:1, hint:'The text implies; the reader _____', explanation:'An inference is a logical conclusion drawn from clues in the text, not directly stated.' },
+    { type:'fill', question:'Reading quickly to get the general meaning of a text is called _______.', answer:'skimming', hint:'Like skimming stones across water — touching the surface', explanation:'Skimming = fast reading for overall gist. Scanning = searching for specific information.' },
+    { type:'mcq', question:'The author\'s attitude towards the subject of their writing is called the...', options:['Mood','Plot','Tone','Theme'], answer:2, hint:'How the author FEELS about what they\'re writing', explanation:'Tone = author\'s attitude. Mood = reader\'s emotional response while reading.' },
+    { type:'arrange', question:'Arrange these words to form a correct definition:', words:['the','text','paragraph','idea','is','main','of','most','important','The','the','the','point'], answer:'The most important point of the paragraph is the main idea', hint:'What is a paragraph MAINLY about?', explanation:'The main idea is the central point — often in the first or last sentence of a paragraph.' },
+    { type:'fill', question:'Using surrounding words to determine the meaning of an unknown word is called using _______ clues.', answer:'context', hint:'Look before and after the unfamiliar word', explanation:'Context clues are surrounding information that helps determine meaning — definitions, synonyms or examples.' },
+    { type:'mcq', question:'If a passage describes "dark storm clouds gathering", what literary device is being used?', options:['Simile','Foreshadowing','Alliteration','Personification'], answer:1, hint:'It hints at what might happen next...', explanation:'Foreshadowing uses hints or clues to suggest future events — creates tension and anticipation.' },
+  ],
+};
+
+const WOD_LIST = [
+  { word:'Serendipity', def:'The occurrence of happy events by chance.', ex:'"Finding this café was pure serendipity — and the coffee was perfect."' },
+  { word:'Eloquent', def:'Fluent and persuasive in speech or writing.', ex:'"Her eloquent speech moved the entire audience."' },
+  { word:'Resilient', def:'Able to recover quickly from difficulties; tough.', ex:'"She proved resilient in the face of every setback."' },
+  { word:'Tenacious', def:'Persistent; holding firm to a purpose.', ex:'"His tenacious spirit helped him master English in six months."' },
+  { word:'Perspicacious', def:'Having a ready insight into things; shrewd.', ex:'"The perspicacious detective spotted the clue immediately."' },
+];
+
+// ═══════════════════════════════════════════
+//  AI API
+// ═══════════════════════════════════════════
+async function callAI(systemPrompt, userPrompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1000,
+      system: systemPrompt,
+      messages:[{ role:'user', content: userPrompt }]
+    })
+  });
+  const data = await res.json();
+  const raw = data.content.map(c => c.text||'').join('');
+  const cleaned = raw.replace(/```json|```/g,'').trim();
+  return JSON.parse(cleaned);
+}
+
+async function fetchFlashcards(levelCode, levelName, category) {
+  const sys = `You are an expert English teacher. Generate exactly 5 flashcard objects for CEFR level ${levelCode} (${levelName}) students studying ${category}. Return ONLY a valid JSON array, no other text, no markdown fences.`;
+  const prompt = `Generate 5 English learning flashcards for ${levelCode} level about ${category}. Each card must be appropriate difficulty for ${levelCode}.
+Return ONLY this JSON array format:
+[{"word":"word or phrase","partOfSpeech":"noun/verb/adjective/etc","definition":"clear level-appropriate definition","example":"natural example sentence using the word","tip":"memory trick or interesting fact"}]`;
+  return await callAI(sys, prompt);
+}
+
+async function fetchQuizQuestions(levelCode, levelName, category, flashcards) {
+  const wordList = flashcards.map(f => f.word).join(', ');
+  const sys = `You are an English quiz creator. Generate exactly 6 quiz questions for CEFR level ${levelCode} (${levelName}) students about ${category}. The questions should primarily test knowledge of these words/concepts: ${wordList}. Return ONLY a valid JSON array, no other text.`;
+  const prompt = `Create 6 English quiz questions. Include 3 MCQ, 2 fill-in-the-blank, and 1 word-arrange question. All must be appropriate for CEFR ${levelCode}.
+Return ONLY this JSON array format (no other text):
+[
+  {"type":"mcq","question":"question text","options":["A","B","C","D"],"answer":0,"hint":"brief hint","explanation":"why this is correct"},
+  {"type":"fill","question":"sentence with _____ blank","answer":"the answer","hint":"brief hint","explanation":"why this is correct"},
+  {"type":"arrange","question":"Arrange these words into a correct sentence:","words":["word1","word2","word3","word4","word5","word6"],"answer":"word1 word2 word3 word4 word5 word6","hint":"brief hint","explanation":"grammar explanation"}
+]`;
+  return await callAI(sys, prompt);
+}
+
+async function fetchWordOfDay() {
+  const sys = `You are an English vocabulary teacher. Return ONLY valid JSON, no markdown.`;
+  const prompt = `Give me one interesting English word of the day. Return ONLY: {"word":"word","partOfSpeech":"type","definition":"definition","example":"example sentence"}`;
+  return await callAI(sys, prompt);
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+function init() {
+  initBgCanvas();
+  renderLevelGrids();
+  renderLB();
+  // Splash → Home
+  setTimeout(() => {
+    showScreen('home-screen');
+    updateNavStats();
+    loadWordOfDay();
+    setTimeout(() => {
+      const m = document.getElementById('streak-modal');
+      document.getElementById('sm-icon').textContent = S.streak >= 7 ? '🔥' : S.streak >= 3 ? '⚡' : '✨';
+      document.getElementById('sm-title').textContent = S.streak >= 7 ? 'Week Streak! 🏆' : 'Daily Streak! 🔥';
+      document.getElementById('sm-body').textContent = `You're on a ${S.streak}-day streak! Complete today's lesson to keep the flame alive.`;
+      m.classList.add('show');
+    }, 400);
+  }, 2400);
+}
+
+async function loadWordOfDay() {
+  const fallback = WOD_LIST[Math.floor(Math.random()*WOD_LIST.length)];
+  document.getElementById('wod-word').textContent = fallback.word;
+  document.getElementById('wod-def').textContent = fallback.def;
+  document.getElementById('wod-ex').textContent = fallback.ex;
+  try {
+    const w = await fetchWordOfDay();
+    if (w.word) {
+      document.getElementById('wod-word').textContent = w.word;
+      document.getElementById('wod-def').textContent = (w.partOfSpeech ? `[${w.partOfSpeech}] ` : '') + w.definition;
+      document.getElementById('wod-ex').textContent = w.example;
+    }
+  } catch(e) { /* keep fallback */ }
+}
+
+// ═══════════════════════════════════════════
+//  SCREEN NAV
+// ═══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  el.scrollTop = 0;
+  window.scrollTo(0,0);
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+function showLoading(text, sub) {
+  document.getElementById('loading-text').textContent = text || 'Generating content...';
+  document.getElementById('loading-sub').textContent = sub || 'Powered by Claude AI';
+  document.getElementById('loading-overlay').classList.add('show');
+}
+
+function hideLoading() {
+  document.getElementById('loading-overlay').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════
+function renderLevelGrids() {
+  const html = LEVELS.map(l => `
+    <div class="level-card" data-lv="${l.id}" onclick="selectLevel(${l.id})" style="animation:statIn .4s ${l.id*.08}s both">
+      <div class="lc-badge" style="color:${l.color};background:${l.color}18;border-color:${l.color}40;">${l.code}</div>
+      <span class="lc-icon">${l.icon}</span>
+      <div class="lc-name" style="color:${l.color}">${l.name}</div>
+      <div class="lc-desc">${l.desc}</div>
+      <span class="lc-arrow">›</span>
+    </div>`).join('');
+  document.getElementById('levels-grid').innerHTML = html;
+  document.getElementById('level-cards-grid').innerHTML = html;
+}
+
+function renderCategories(lvl) {
+  document.getElementById('cat-screen-title').textContent = `${lvl.icon} ${lvl.name} — Choose Category`;
+  document.getElementById('cat-grid').innerHTML = CATEGORIES.map((c,i) => `
+    <div class="cat-card" style="animation:cardIn .35s ${i*.06}s both" onclick="selectCategory('${c.id}')">
+      <div class="cat-icon-wrap">${c.icon}</div>
+      <div class="cat-info">
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-desc">${c.desc}</div>
+        <div class="cat-tag">${c.tag}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderLB() {
+  LEADERBOARD.find(p=>p.you).xp = S.xp;
+  const sorted = [...LEADERBOARD].sort((a,b)=>b.xp-a.xp);
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('lb-list').innerHTML = sorted.map((p,i) => `
+    <div class="lb-row${p.you?' you':''}">
+      <span style="font-size:18px;font-weight:900;width:28px;text-align:center">${medals[i]||i+1}</span>
+      <span style="font-size:20px">${p.flag}</span>
+      <span style="flex:1;font-weight:${p.you?900:700};color:${p.you?'var(--green)':'var(--text)'}">
+        ${p.name}${p.you?' (You)':''}
+      </span>
+      <span style="font-weight:800;color:var(--yellow)">⚡ ${p.xp}</span>
+    </div>`).join('');
+}
+
+function updateNavStats() {
+  document.getElementById('nav-streak').textContent = S.streak;
+  document.getElementById('nav-xp').textContent = S.xp;
+  document.getElementById('nav-hp').textContent = S.hearts;
+  const rank = RANKS[Math.min(Math.floor(S.xp/400), RANKS.length-1)];
+  document.getElementById('home-rank').textContent = rank;
+  document.getElementById('hero-level-name').textContent = rank;
+  const lvlNum = Math.floor(S.xp/100)+1;
+  S.level = lvlNum;
+  document.getElementById('home-lvl').textContent = lvlNum;
+  document.getElementById('lvl-badge-num').textContent = lvlNum;
+  document.getElementById('xp-cur').textContent = S.xp % 100;
+  document.getElementById('xp-max').textContent = 100;
+  document.getElementById('xp-fill').style.width = (S.xp % 100)+'%';
+  document.getElementById('xp-curlvl').textContent = lvlNum;
+  document.getElementById('xp-nextlvl').textContent = lvlNum+1;
+  renderLB();
+}
+
+// ═══════════════════════════════════════════
+//  LEVEL + CATEGORY FLOW
+// ═══════════════════════════════════════════
+function selectLevel(lvlId) {
+  S.selectedLevel = LEVELS.find(l=>l.id===lvlId);
+  renderCategories(S.selectedLevel);
+  showScreen('category-screen');
+}
+
+async function selectCategory(catId) {
+  S.selectedCategory = CATEGORIES.find(c=>c.id===catId);
+  showLoading('🃏 AI is preparing your flashcards...', `Creating ${S.selectedLevel.code} level ${S.selectedCategory.name} cards`);
+
+  let cards;
+  try {
+    cards = await fetchFlashcards(S.selectedLevel.code, S.selectedLevel.name, S.selectedCategory.name);
+    if (!Array.isArray(cards)||cards.length<3) throw new Error('bad');
+  } catch(e) {
+    cards = (FB_CARDS[catId]||FB_CARDS.vocabulary).slice(0,5);
+  }
+
+  hideLoading();
+  training.cards = cards;
+  training.idx = 0;
+  training.flipped = false;
+  training.done = [];
+  initTraining();
+}
+
+// ═══════════════════════════════════════════
+//  TRAINING
+// ═══════════════════════════════════════════
+function initTraining() {
+  const lvl = S.selectedLevel;
+  document.getElementById('training-level-tag').textContent = `${lvl.code} ${lvl.name}`;
+  document.getElementById('quiz-start-btn').disabled = true;
+
+  // Dots
+  const dotsEl = document.getElementById('fc-dots');
+  dotsEl.innerHTML = training.cards.map((_,i)=>`<div class="fc-dot" id="dot-${i}"></div>`).join('');
+  updateDots();
+  showCard(0);
+  showScreen('training-screen');
+}
+
+function updateDots() {
+  training.cards.forEach((_,i) => {
+    const d = document.getElementById('dot-'+i);
+    d.className = 'fc-dot' + (training.done.includes(i)?' done': i===training.idx?' current':'');
+  });
+  document.getElementById('fc-count').textContent = `Card ${training.idx+1} of ${training.cards.length}`;
+}
+
+function showCard(idx) {
+  const c = training.cards[idx];
+  training.flipped = false;
+  const fc = document.getElementById('flashcard');
+  fc.classList.remove('flipped');
+  document.getElementById('fc-pos').textContent = c.partOfSpeech||'word';
+  document.getElementById('fc-word').textContent = c.word||c.term||'';
+  document.getElementById('fc-def').textContent = c.definition||'';
+  document.getElementById('fc-example').textContent = c.example||'';
+  document.getElementById('fc-tip').innerHTML = `<span>💡</span><span>${c.tip||c.memory_tip||''}</span>`;
+  document.getElementById('conf-row').style.display = 'none';
+  updateDots();
+}
+
+function flipCard() {
+  if (training.flipped) return;
+  training.flipped = true;
+  document.getElementById('flashcard').classList.add('flipped');
+  setTimeout(() => {
+    document.getElementById('conf-row').style.display = 'flex';
+  }, 400);
+}
+
+function rateCard(conf) {
+  if (!training.done.includes(training.idx)) training.done.push(training.idx);
+  const next = training.idx + 1;
+  if (next < training.cards.length) {
+    training.idx = next;
+    setTimeout(() => showCard(next), 100);
+  } else {
+    // All done
+    training.cards.forEach((_,i) => {
+      const d = document.getElementById('dot-'+i);
+      if(d) d.className = 'fc-dot done';
+    });
+    document.getElementById('fc-count').textContent = `All ${training.cards.length} cards reviewed! 🎉`;
+    document.getElementById('quiz-start-btn').disabled = false;
+    document.getElementById('quiz-start-btn').style.animation = 'breathe 1.5s ease-in-out infinite';
+  }
+}
+
+async function beginQuiz() {
+  showLoading('🧠 Generating quiz questions...', `AI is crafting your ${S.selectedLevel.code} ${S.selectedCategory.name} quiz`);
+  let qs;
+  try {
+    qs = await fetchQuizQuestions(S.selectedLevel.code, S.selectedLevel.name, S.selectedCategory.name, training.cards);
+    if (!Array.isArray(qs)||qs.length<3) throw new Error('bad');
+  } catch(e) {
+    qs = shuffle([...(FB_QUESTIONS[S.selectedCategory.id]||FB_QUESTIONS.vocabulary)]).slice(0,6);
+  }
+  hideLoading();
+  startQuizWith(qs, `${S.selectedLevel.code} ${S.selectedCategory.name}`);
+}
+
+// ═══════════════════════════════════════════
+//  QUIZ
+// ═══════════════════════════════════════════
+function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b; }
+
+function startQuizWith(qs, name) {
+  quiz.questions = shuffle(qs);
+  quiz.idx = 0; quiz.correct = 0; quiz.wrong = 0;
+  quiz.start = Date.now(); quiz.answered = false;
+  quiz.category = name;
+  S.hearts = S.maxHearts;
+  showScreen('quiz-screen');
+  renderQuestion();
+}
+
+function renderHearts() {
+  document.getElementById('q-hearts').innerHTML = Array.from({length:S.maxHearts},(_,i)=>
+    `<span class="heart${i>=S.hearts?' lost':''}">❤️</span>`).join('');
+}
+
+function setProgress() {
+  document.getElementById('q-progress').style.width = (quiz.idx/quiz.questions.length*100)+'%';
+}
+
+function renderQuestion() {
+  quiz.answered = false;
+  quiz.mcqSel = null;
+  quiz.arranged = [];
+  setProgress(); renderHearts();
+  document.getElementById('fb-area').innerHTML = '';
+  const btn = document.getElementById('check-btn');
+  btn.disabled = true; btn.textContent = 'CHECK ✓'; btn.style.display = '';
+  const q = quiz.questions[quiz.idx];
+  if(q.type==='mcq') renderMCQ(q);
+  else if(q.type==='fill') renderFill(q);
+  else if(q.type==='arrange') renderArrange(q);
+}
+
+function renderMCQ(q) {
+  document.getElementById('q-area').innerHTML = `
+    <div class="q-card">
+      <span class="q-type-badge badge-mcq">Multiple Choice</span>
+      <div class="q-text">${q.question}</div>
+      <div class="q-hint">💡 <span>${q.hint||'Choose the best answer'}</span></div>
+      <div class="opts">
+        ${q.options.map((o,i)=>`
+          <button class="opt" id="opt${i}" onclick="pickMCQ(${i})">
+            <span class="opt-letter">${'ABCD'[i]}</span>${o}
+          </button>`).join('')}
+      </div>
+    </div>`;
+}
+
+function pickMCQ(i) {
+  if(quiz.answered) return;
+  document.querySelectorAll('.opt').forEach((b,j)=>{
+    b.className='opt'+(j===i?' selected':'');
+  });
+  quiz.mcqSel = i;
+  document.getElementById('check-btn').disabled = false;
+}
+
+function renderFill(q) {
+  document.getElementById('q-area').innerHTML = `
+    <div class="q-card">
+      <span class="q-type-badge badge-fill">Fill in the Blank</span>
+      <div class="q-text">${q.question}</div>
+      <div class="q-hint">💡 <span>${q.hint||'Type your answer'}</span></div>
+      <div class="fill-wrap">
+        <input class="fill-in" id="fill-in" type="text" placeholder="Type your answer here..."
+          oninput="document.getElementById('check-btn').disabled=!this.value.trim()"
+          onkeydown="if(event.key==='Enter'&&!document.getElementById('check-btn').disabled)checkAnswer()">
+      </div>
+    </div>`;
+  setTimeout(()=>document.getElementById('fill-in')?.focus(),80);
+}
+
+function renderArrange(q) {
+  const shuffled = shuffle(q.words||[]);
+  quiz.arrangeAns = q.answer;
+  quiz.arranged = [];
+  document.getElementById('q-area').innerHTML = `
+    <div class="q-card">
+      <span class="q-type-badge badge-arrange">Arrange the Words</span>
+      <div class="q-text">${q.question}</div>
+      <div class="q-hint">💡 <span>${q.hint||'Tap words to build the sentence. Tap placed words to remove them.'}</span></div>
+      <div class="arrange-answer-zone" id="ans-zone">
+        <span class="arrange-empty-hint" id="az-hint">Tap words below ↓</span>
+      </div>
+      <div class="word-bank" id="wbank">
+        ${shuffled.map((w,i)=>`<span class="bank-word" id="bw${i}" onclick="addWord('${w.replace(/'/g,"\\'")}',${i})">${w}</span>`).join('')}
+      </div>
+    </div>`;
+}
+
+function addWord(w, idx) {
+  if(quiz.answered) return;
+  const bw = document.getElementById('bw'+idx);
+  if(!bw||bw.classList.contains('used')) return;
+  bw.classList.add('used');
+  quiz.arranged.push({w,idx});
+  const hint = document.getElementById('az-hint');
+  if(hint) hint.remove();
+  const zone = document.getElementById('ans-zone');
+  zone.classList.add('has-words');
+  const el = document.createElement('span');
+  el.className = 'placed-word';
+  el.dataset.idx = idx;
+  el.textContent = w;
+  el.onclick = () => removeWord(el, idx);
+  zone.appendChild(el);
+  document.getElementById('check-btn').disabled = quiz.arranged.length < 2;
+}
+
+function removeWord(el, idx) {
+  if(quiz.answered) return;
+  quiz.arranged = quiz.arranged.filter(x=>x.idx!==idx);
+  el.remove();
+  document.getElementById('bw'+idx)?.classList.remove('used');
+  const zone = document.getElementById('ans-zone');
+  if(!zone.querySelector('.placed-word')) {
+    zone.classList.remove('has-words');
+    zone.innerHTML = '<span class="arrange-empty-hint" id="az-hint">Tap words below ↓</span>';
+    document.getElementById('check-btn').disabled = true;
+  }
+}
+
+// ═══════════════════════════════════════════
+//  CHECK ANSWER
+// ═══════════════════════════════════════════
+function checkAnswer() {
+  if(quiz.answered) return;
+  quiz.answered = true;
+  const q = quiz.questions[quiz.idx];
+  let ok = false, correctAns = '';
+
+  if(q.type==='mcq') {
+    ok = quiz.mcqSel === q.answer;
+    correctAns = q.options[q.answer];
+    document.querySelectorAll('.opt').forEach((b,i)=>{
+      b.disabled = true;
+      if(i===q.answer) b.classList.add('correct');
+      else if(i===quiz.mcqSel&&!ok) b.classList.add('wrong');
+    });
+  } else if(q.type==='fill') {
+    const val = (document.getElementById('fill-in')?.value||'').trim().toLowerCase();
+    const ans = (q.answer||'').toLowerCase().trim();
+    ok = val===ans || ans.split('/').map(s=>s.trim()).includes(val);
+    correctAns = q.answer;
+    const inp = document.getElementById('fill-in');
+    if(inp){ inp.disabled=true; inp.classList.add(ok?'correct':'wrong'); }
+  } else if(q.type==='arrange') {
+    const built = quiz.arranged.map(x=>x.w).join(' ');
+    ok = built.toLowerCase().replace(/\s+/g,' ').trim() === (q.answer||'').toLowerCase().replace(/\s+/g,' ').trim();
+    correctAns = q.answer;
+    const zone = document.getElementById('ans-zone');
+    zone.classList.remove('has-words');
+    zone.classList.add(ok?'correct':'wrong');
+    document.querySelectorAll('.bank-word').forEach(b=>b.style.pointerEvents='none');
+  }
+
+  if(ok) {
+    quiz.correct++;
+    const xp = 15 + Math.floor(Math.random()*11);
+    const prevLvl = Math.floor(S.xp/100);
+    S.xp += xp;
+    const newLvl = Math.floor(S.xp/100);
+    updateNavStats();
+    showXPPop('+'+xp+' XP ⚡');
+    if(newLvl > prevLvl) setTimeout(()=>{
+      document.getElementById('lu-body').textContent = `You've reached Level ${newLvl}! Keep pushing higher!`;
+      document.getElementById('levelup-modal').classList.add('show');
+    }, 800);
+    // Particle burst
+    burstParticles();
+  } else {
+    quiz.wrong++;
+    S.hearts = Math.max(0, S.hearts-1);
+    renderHearts();
+    // Screen flash
+    document.getElementById('quiz-screen').style.animation = 'none';
+    document.body.style.outline = '3px solid rgba(255,69,96,.4)';
+    setTimeout(()=>document.body.style.outline='none',400);
+  }
+
+  showFeedback(ok, correctAns, q.explanation||'');
+  document.getElementById('check-btn').style.display = 'none';
+
+  if(!ok && S.hearts===0) setTimeout(endQuiz, 2000);
+}
+
+function showFeedback(ok, correct, explain) {
+  const okMsgs = ['Correct! 🎉','Spot on! ✨','Nailed it! 🔥','Brilliant! 💡','Perfect! ⭐','Outstanding! 🚀'];
+  const noMsgs = ['Not quite! 🤔','Keep going! 💪','Almost there! 📚','Try again! ✏️'];
+  const msg = ok ? okMsgs[Math.floor(Math.random()*okMsgs.length)] : noMsgs[Math.floor(Math.random()*noMsgs.length)];
+  const isLast = quiz.idx+1 >= quiz.questions.length;
+  document.getElementById('fb-area').innerHTML = `
+    <div class="feedback ${ok?'correct':'wrong'}">
+      <div style="flex:1">
+        <div class="fb-label">${msg}</div>
+        ${!ok?`<div class="fb-detail">✅ Correct: <strong>${correct}</strong></div>`:''}
+        ${explain?`<div class="fb-explain">${explain}</div>`:''}
+      </div>
+      <button class="next-btn ${ok?'':'red'}" onclick="nextQ()">
+        ${isLast?'FINISH 🏆':'NEXT →'}
+      </button>
+    </div>`;
+}
+
+function nextQ() {
+  quiz.idx++;
+  if(quiz.idx >= quiz.questions.length || S.hearts===0) endQuiz();
+  else renderQuestion();
+}
+
+function endQuiz() {
+  const elapsed = Math.round((Date.now()-quiz.start)/1000);
+  const total = quiz.correct+quiz.wrong;
+  const acc = total>0 ? Math.round(quiz.correct/total*100) : 0;
+  const xpEarned = quiz.correct*15;
+  const streakBonus = acc >= 80;
+
+  document.getElementById('res-trophy').textContent = acc===100?'🏆':acc>=80?'⭐':acc>=50?'💪':'📚';
+  document.getElementById('res-title').textContent = acc===100?'PERFECT!':acc>=80?'EXCELLENT!':acc>=50?'WELL DONE!':'KEEP GOING!';
+  const colors = {100:'var(--yellow)',80:'var(--green)',50:'var(--blue)',0:'var(--text2)'};
+  document.getElementById('res-title').style.color = acc>=80?colors[acc>=100?100:80]:acc>=50?colors[50]:colors[0];
+  document.getElementById('res-sub').textContent = `${quiz.correct}/${total} correct — ${quiz.category}`;
+  document.getElementById('r-xp').textContent = '+'+xpEarned+(streakBonus?'+20':'');
+  document.getElementById('r-acc').textContent = acc+'%';
+  document.getElementById('r-time').textContent = elapsed+'s';
+  document.getElementById('res-streak-bonus').style.display = streakBonus?'block':'none';
+
+  showScreen('results-screen');
+  if(acc>=70) setTimeout(launchConfetti,200);
+}
+
+function exitQuiz(){ showScreen('home-screen'); }
+function retryQuiz(){ if(quiz.questions.length) startQuizWith(quiz.questions, quiz.category); }
+
+// ═══════════════════════════════════════════
+//  ANIMATIONS
+// ═══════════════════════════════════════════
+function showXPPop(text) {
+  const el = document.createElement('div');
+  el.className = 'xp-pop'; el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1700);
+}
+
+function burstParticles() {
+  const colors=['#00E676','#00B4FF','#FFD600','#B06EFF'];
+  for(let i=0;i<12;i++) {
+    const el = document.createElement('div');
+    const angle = (i/12)*Math.PI*2;
+    const dist = 60+Math.random()*40;
+    el.style.cssText=`position:fixed;width:8px;height:8px;border-radius:50%;
+      background:${colors[i%4]};pointer-events:none;z-index:400;
+      left:50%;top:50%;transform:translate(-50%,-50%);
+      animation:burst .6s ease forwards;`;
+    el.style.setProperty('--tx', Math.cos(angle)*dist+'px');
+    el.style.setProperty('--ty', Math.sin(angle)*dist+'px');
+    document.head.insertAdjacentHTML('beforeend',`<style>@keyframes burst{to{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty)));opacity:0;scale:.3}}</style>`);
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),700);
+  }
+}
+
+function launchConfetti() {
+  const c = document.getElementById('confetti-canvas');
+  const ctx = c.getContext('2d');
+  c.width = window.innerWidth; c.height = window.innerHeight;
+  const colors=['#00E676','#00B4FF','#FFD600','#FF4560','#B06EFF','#FF7B2C'];
+  const pts = Array.from({length:150},()=>({
+    x:Math.random()*c.width,y:-20,
+    vx:(Math.random()-.5)*6, vy:Math.random()*6+2,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    w:Math.random()*12+4, h:Math.random()*6+2,
+    rot:Math.random()*360, spin:(Math.random()-.5)*12,
+    g:.06
+  }));
+  let f=0;
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{
+      p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.rot+=p.spin;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;ctx.globalAlpha=Math.max(0,1-f/130);
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+    });
+    f++;
+    if(f<150) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,c.width,c.height);
+  }
+  draw();
+}
+
+// ═══════════════════════════════════════════
+//  BG CANVAS
+// ═══════════════════════════════════════════
+function initBgCanvas() {
+  const c = document.getElementById('bg-canvas');
+  const ctx = c.getContext('2d');
+  function resize(){ c.width=window.innerWidth; c.height=window.innerHeight; }
+  resize(); window.addEventListener('resize',resize);
+
+  const stars = Array.from({length:120},()=>({
+    x:Math.random()*c.width, y:Math.random()*c.height,
+    r:Math.random()*1.5+.2,
+    alpha:Math.random(), speed:Math.random()*.02+.005
+  }));
+  const nodes = Array.from({length:30},()=>({
+    x:Math.random()*c.width, y:Math.random()*c.height,
+    vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4,
+    color:['rgba(0,180,255,','rgba(0,230,118,','rgba(176,110,255,'][Math.floor(Math.random()*3)]
+  }));
+
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    // Stars
+    stars.forEach(s=>{
+      s.alpha += s.speed; if(s.alpha>1||s.alpha<0) s.speed*=-1;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,255,${s.alpha*.6})`; ctx.fill();
+    });
+    // Nodes
+    nodes.forEach(n=>{
+      n.x+=n.vx; n.y+=n.vy;
+      if(n.x<0||n.x>c.width) n.vx*=-1;
+      if(n.y<0||n.y>c.height) n.vy*=-1;
+      ctx.beginPath(); ctx.arc(n.x,n.y,1.5,0,Math.PI*2);
+      ctx.fillStyle=n.color+'0.5)'; ctx.fill();
+    });
+    // Connections
+    nodes.forEach((a,i)=>nodes.slice(i+1).forEach(b=>{
+      const d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<130){
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+        ctx.strokeStyle=`rgba(0,180,255,${.06*(1-d/130)})`; ctx.lineWidth=.5; ctx.stroke();
+      }
+    }));
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ═══════════════════════════════════════════
+//  RIPPLE EFFECT
+// ═══════════════════════════════════════════
+document.addEventListener('click',function(e){
+  const target = e.target.closest('button,a,[onclick]');
+  if(!target) return;
+  const r=document.createElement('span');
+  const rect=target.getBoundingClientRect();
+  const sz=Math.max(rect.width,rect.height);
+  r.className='ripple';
+  r.style.cssText=`width:${sz}px;height:${sz}px;left:${e.clientX-rect.left-sz/2}px;top:${e.clientY-rect.top-sz/2}px;`;
+  target.style.position='relative'; target.style.overflow='hidden';
+  target.appendChild(r);
+  r.addEventListener('animationend',()=>r.remove());
+});
+
+// ═══════════════════════════════════════════
+//  KEYBOARD
+// ═══════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.key==='1') pickMCQ(0);
+  else if(e.key==='2') pickMCQ(1);
+  else if(e.key==='3') pickMCQ(2);
+  else if(e.key==='4') pickMCQ(3);
+});
+
+// ═══════════════════════════════════════════
+//  RESIZE
+// ═══════════════════════════════════════════
+window.addEventListener('resize',()=>{
+  document.getElementById('confetti-canvas').width=window.innerWidth;
+  document.getElementById('confetti-canvas').height=window.innerHeight;
+});
+
+// ═══════════════════════════════════════════
+//  START
+// ═══════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
