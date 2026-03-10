@@ -4,6 +4,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=5.0,viewport-fit=cover">
+<!-- ╔══════════════════════════════════════════════════════════════════╗
+     ║  GOOGLE OAUTH — set your Client ID in the JS block below       ║
+     ╚══════════════════════════════════════════════════════════════════╝ -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <title>Fluentex — AI English Learning Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Nunito+Black&display=swap" rel="stylesheet">
 <style>
@@ -528,6 +532,36 @@ html { font-size: clamp(13px, 2vw, 16px); }
   .pg { max-width: 1100px; }
   .sub-body { max-width: 980px; }
 }
+
+
+/* ══ GOOGLE AUTH ═══════════════════════════════════════════════════════════ */
+.sb-auth-wrap{padding:16px 20px 14px;border-bottom:1px solid var(--bdr)}
+.sb-auth-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+/* Signed-out panel */
+.gauth-desc{font-size:11px;color:var(--text2);font-weight:500;line-height:1.6;margin-bottom:12px;text-align:center}
+.g-signin-wrap{width:100%;display:flex;justify-content:center}
+/* Signed-in panel */
+.gauth-user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surf);border:1.5px solid var(--bdr);border-radius:13px;margin-bottom:9px;transition:border-color .2s}
+.gauth-user-card:hover{border-color:var(--bdr2)}
+.gauth-avatar{width:40px;height:40px;border-radius:50%;border:2px solid var(--bdr2);object-fit:cover;flex-shrink:0;background:var(--bg3)}
+.gauth-av-fb{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;font-weight:900}
+.gauth-uname{font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gauth-uemail{font-size:10px;color:var(--text3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.gauth-cloud-row{display:flex;align-items:center;justify-content:space-between;padding:7px 11px;background:rgba(16,185,129,.07);border:1.5px solid rgba(16,185,129,.22);border-radius:11px;margin-bottom:8px;transition:border-color .2s}
+.gauth-cloud-row.syncing{border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.07)}
+.gauth-cloud-row.error{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.07)}
+.gauth-cloud-lbl{font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;color:var(--green)}
+.gauth-cloud-row.syncing .gauth-cloud-lbl{color:var(--yellow)}
+.gauth-cloud-row.error .gauth-cloud-lbl{color:var(--red)}
+.gauth-sync-btn{font-size:10px;font-weight:800;background:none;border:none;cursor:pointer;padding:3px 9px;border-radius:7px;color:var(--text2);transition:color .2s,background .2s;font-family:'Nunito',sans-serif}
+.gauth-sync-btn:hover{color:var(--blue);background:rgba(0,195,255,.1)}
+.gauth-sync-time{font-size:9px;color:var(--text3);font-weight:600;margin-top:1px;display:block}
+.gauth-signout{width:100%;padding:8px;border-radius:10px;border:1.5px solid var(--bdr2);background:none;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px}
+.gauth-signout:hover{border-color:var(--red);color:var(--red);background:rgba(239,68,68,.07)}
+/* Cloud indicator in topbar navs */
+.cloud-badge{display:none;align-items:center;gap:4px;padding:3px 8px;border-radius:100px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);font-size:10px;font-weight:700;color:var(--green);cursor:pointer;transition:all .2s}
+.cloud-badge.visible{display:flex}
+.cloud-badge .cbd{width:6px;height:6px;border-radius:50%;background:var(--green);animation:lDot 1.4s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -540,6 +574,36 @@ html { font-size: clamp(13px, 2vw, 16px); }
   <div class="sb-head">
     <div class="sb-brand"><span>🏆</span> Fluentex</div>
     <button class="sb-close" onclick="closeSidebar()">✕</button>
+  </div>
+
+  <!-- Google Account -->
+  <div class="sb-auth-wrap">
+    <!-- Signed Out -->
+    <div id="gauth-out-panel">
+      <div class="sb-auth-lbl">🔐 Account</div>
+      <div class="gauth-desc">Sign in with Google to save your progress to the cloud and never lose it on updates.</div>
+      <div class="g-signin-wrap" id="g-signin-btn-wrap"></div>
+    </div>
+    <!-- Signed In -->
+    <div id="gauth-in-panel" style="display:none">
+      <div class="sb-auth-lbl">👤 Account <span id="gauth-verified-badge" style="font-size:9px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:var(--green);padding:2px 7px;border-radius:6px;letter-spacing:.5px;text-transform:uppercase;font-weight:800">Verified</span></div>
+      <div class="gauth-user-card">
+        <img id="gauth-avatar-img" class="gauth-avatar" src="" alt="" style="display:none" onerror="this.style.display='none';document.getElementById('gauth-av-fb').style.display='flex'">
+        <div id="gauth-av-fb" class="gauth-av-fb">👤</div>
+        <div style="min-width:0;flex:1">
+          <div class="gauth-uname" id="gauth-display-name">—</div>
+          <div class="gauth-uemail" id="gauth-display-email">—</div>
+        </div>
+      </div>
+      <div class="gauth-cloud-row" id="gauth-cloud-row">
+        <div>
+          <div class="gauth-cloud-lbl" id="gauth-cloud-lbl">☁️ Cloud Sync Active</div>
+          <span class="gauth-sync-time" id="gauth-sync-time">Never synced</span>
+        </div>
+        <button class="gauth-sync-btn" onclick="syncNow()">↻ Sync</button>
+      </div>
+      <button class="gauth-signout" onclick="gSignOut()">Sign Out</button>
+    </div>
   </div>
 
   <!-- Stats -->
@@ -579,6 +643,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <div class="sb-link" onclick="closeSidebar();showScreen('badges')"><div class="sb-link-ico">🏅</div>My Badges</div>
     </div>
   </div>
+
 
   <!-- Legal -->
   <div class="sb-legal">
@@ -678,6 +743,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <div class="nstat exp">⚡ <span id="n-xp">0</span></div>
       <div class="nstat hp">❤️ <span id="n-hp">5</span></div>
       <button class="badge-btn" onclick="showScreen('badges')">🏅 <span id="badge-cnt">0</span><span class="bdot" id="bdot"></span></button>
+      <div class="cloud-badge" id="cloud-badge-home" onclick="openSidebar()" title="Cloud sync active"><div class="cbd"></div>Synced</div>
       <button class="hbtn" onclick="openSidebar()" aria-label="Menu"><div class="hbar"></div><div class="hbar"></div><div class="hbar"></div></button>
       </div>
   </nav>
@@ -1024,7 +1090,16 @@ let lbTimer=null;
 
 /* ─── STORAGE ────────────────────────────── */
 const KP='fx_pro_v5',KL='fx_lb_v6',KW='fx_wod_v5',KT='fx_theme_v5';
-function sp(){const d=JSON.stringify(U);try{localStorage.setItem(KP,d)}catch(e){}try{sessionStorage.setItem(KP,d)}catch(e){}}
+function sp(){
+  const d=JSON.stringify(U);
+  try{localStorage.setItem(KP,d)}catch(e){}
+  try{sessionStorage.setItem(KP,d)}catch(e){}
+  // Auto-sync to cloud if signed in (debounced — max once per 8s)
+  if(gUser&&gUser.sub){
+    clearTimeout(sp._ct);
+    sp._ct=setTimeout(()=>syncToCloud(gUser.sub),8000);
+  }
+}
 function lp(){
   try{const s=sessionStorage.getItem(KP)||localStorage.getItem(KP);if(s){const p=JSON.parse(s);if(p&&p.name){if(!p.perf)p.perf={vocabulary:{c:0,w:0},grammar:{c:0,w:0},idioms:{c:0,w:0},spelling:{c:0,w:0},conversation:{c:0,w:0},reading:{c:0,w:0}};if(!p.badges)p.badges=[];if(!p.catsPlayed)p.catsPlayed={};Object.assign(U,p);return true;}}}catch(e){}return false;
 }
@@ -1332,9 +1407,309 @@ function applyProfile(p){
   Object.assign(U,p);
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════
+   GOOGLE AUTH + CLOUD SYNC
+   ─────────────────────────────────────────────────────────────────────
+   SETUP: Replace '240526753578-77capepo2oel69vrl4r2u8dbg23b1p9g.apps.googleusercontent.com
+' with your actual OAuth 2.0
+   Client ID from https://console.cloud.google.com/
+   ─────────────────────────────────────────────────────────────────────
+   Cloud storage key pattern: fx_cloud_v6:{google_sub}
+   Uses window.storage (Anthropic shared API, private mode) + localStorage
+══════════════════════════════════════════════════════════════════════ */
+const GOOGLE_CLIENT_ID = '240526753578-77capepo2oel69vrl4r2u8dbg23b1p9g.apps.googleusercontent.com
+';
+const CLOUD_KEY_PREFIX  = 'fx_cloud_v6:';
+const GAUTH_LOCAL_KEY   = 'fx_gauth_v6';  // stores {sub,name,email,picture}
+
+/* ── Google Identity State ─────────────────────────────────────────── */
+let gUser = null;          // { sub, name, email, picture }
+let lastSyncTime = null;
+let syncInProgress = false;
+
+/* ── Decode Google JWT payload (no verification — client-side only) ─ */
+function decodeJWT(token) {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = atob(payload.replace(/-/g,'+').replace(/_/g,'/'));
+    return JSON.parse(decoded);
+  } catch(e) { return null; }
+}
+
+/* ── Initialise Google Identity Services ─────────────────────────── */
+function initGoogleAuth() {
+  if (typeof google === 'undefined' || !google.accounts) {
+    // GSI not loaded yet — retry
+    setTimeout(initGoogleAuth, 800);
+    return;
+  }
+  if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === '240526753578-77capepo2oel69vrl4r2u8dbg23b1p9g.apps.googleusercontent.com
+') {
+    console.warn('Fluentex: Set GOOGLE_CLIENT_ID to enable Google Sign-In.');
+    showGauthPlaceholder();
+    return;
+  }
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: onGoogleSignIn,
+    auto_select: true,          // auto sign-in if previously consented
+    cancel_on_tap_outside: false,
+    use_fedcm_for_prompt: true,
+  });
+  // Render the styled button
+  google.accounts.id.renderButton(
+    document.getElementById('g-signin-btn-wrap'),
+    {
+      type: 'standard',
+      shape: 'pill',
+      theme: document.documentElement.getAttribute('data-theme') === 'dark'
+             ? 'filled_black' : 'outline',
+      size: 'large',
+      text: 'signin_with',
+      width: 240,
+    }
+  );
+  // Attempt silent/auto sign-in (One Tap)
+  google.accounts.id.prompt((notification) => {
+    if (notification.isSkippedMoment() || notification.isDismissedMoment()) {
+      // One Tap dismissed — restore from local gauth cache if available
+      restoreGauthFromCache();
+    }
+  });
+  // Also try restoring from cached credential
+  restoreGauthFromCache();
+}
+
+/* ── Show placeholder when no Client ID configured ───────────────── */
+function showGauthPlaceholder() {
+  const wrap = document.getElementById('g-signin-btn-wrap');
+  if (wrap) wrap.innerHTML = `
+    <div style="text-align:center;padding:10px 12px;border:1.5px dashed var(--bdr2);border-radius:12px;font-size:11px;color:var(--text3);font-weight:600;line-height:1.6">
+      🔧 Set <code style="background:var(--surf);padding:1px 5px;border-radius:4px;font-size:10px">GOOGLE_CLIENT_ID</code><br>in the JS to enable sign-in
+    </div>`;
+}
+
+/* ── Restore sign-in state from cached gauth data ─────────────────── */
+function restoreGauthFromCache() {
+  try {
+    const cached = localStorage.getItem(GAUTH_LOCAL_KEY);
+    if (cached) {
+      const g = JSON.parse(cached);
+      if (g && g.sub && g.name) {
+        applyGUser(g);
+        // Load cloud profile silently
+        loadFromCloud(g.sub).then(loaded => {
+          if (loaded) {
+            updateUI(); renderPerf(); renderBadges(); renderLB();
+          }
+        });
+      }
+    }
+  } catch(e) {}
+}
+
+/* ── Called by Google GSI on successful sign-in ──────────────────── */
+async function onGoogleSignIn(response) {
+  const payload = decodeJWT(response.credential);
+  if (!payload) { console.error('Invalid Google credential'); return; }
+
+  const g = {
+    sub:     payload.sub,
+    name:    payload.name || payload.given_name || 'User',
+    email:   payload.email || '',
+    picture: payload.picture || '',
+  };
+
+  // Cache auth locally (no sensitive data — just display info + sub)
+  try { localStorage.setItem(GAUTH_LOCAL_KEY, JSON.stringify(g)); } catch(e) {}
+
+  applyGUser(g);
+
+  // Load cloud data and merge with current local data
+  const loaded = await loadFromCloud(g.sub);
+  if (loaded) {
+    // Cloud data found — update UI with cloud profile
+    checkStreak(); sp();
+    updateUI(); renderPerf(); renderBadges(); renderLB();
+    showSyncToast('☁️ Cloud data loaded!', 'success');
+  } else {
+    // No cloud data yet — push current local data to cloud
+    await syncToCloud(g.sub);
+    showSyncToast('☁️ Progress saved to cloud!', 'success');
+  }
+}
+
+/* ── Apply Google user object to UI ─────────────────────────────── */
+function applyGUser(g) {
+  gUser = g;
+
+  // Toggle panels
+  document.getElementById('gauth-out-panel').style.display = 'none';
+  document.getElementById('gauth-in-panel').style.display  = 'block';
+
+  // Name & email
+  document.getElementById('gauth-display-name').textContent  = g.name;
+  document.getElementById('gauth-display-email').textContent = g.email;
+
+  // Avatar
+  if (g.picture) {
+    const img = document.getElementById('gauth-avatar-img');
+    img.src = g.picture;
+    img.style.display = 'block';
+    document.getElementById('gauth-av-fb').style.display = 'none';
+  }
+
+  // Show cloud badge in nav (if element exists)
+  document.querySelectorAll('.cloud-badge').forEach(el => el.classList.add('visible'));
+
+  updateSidebarStats();
+}
+
+/* ── Sign out ──────────────────────────────────────────────────── */
+function gSignOut() {
+  if (typeof google !== 'undefined' && google.accounts) {
+    google.accounts.id.disableAutoSelect();
+    if (gUser && gUser.email) {
+      try { google.accounts.id.revoke(gUser.email, () => {}); } catch(e) {}
+    }
+  }
+  gUser = null;
+  try { localStorage.removeItem(GAUTH_LOCAL_KEY); } catch(e) {}
+
+  // Reset UI
+  document.getElementById('gauth-out-panel').style.display = 'block';
+  document.getElementById('gauth-in-panel').style.display  = 'none';
+  document.querySelectorAll('.cloud-badge').forEach(el => el.classList.remove('visible'));
+
+  // Re-render sign-in button
+  if (typeof google !== 'undefined' && google.accounts && GOOGLE_CLIENT_ID !== '240526753578-77capepo2oel69vrl4r2u8dbg23b1p9g.apps.googleusercontent.com
+') {
+    google.accounts.id.renderButton(
+      document.getElementById('g-signin-btn-wrap'),
+      { type:'standard', shape:'pill',
+        theme: document.documentElement.getAttribute('data-theme')==='dark' ? 'filled_black':'outline',
+        size:'large', text:'signin_with', width:240 }
+    );
+  }
+  showSyncToast('👋 Signed out', 'info');
+}
+
+/* ── Save profile to cloud (window.storage, keyed by google_sub) ── */
+async function syncToCloud(sub) {
+  if (!sub) return false;
+  const cloudKey = CLOUD_KEY_PREFIX + sub;
+  const data = {
+    profile: { ...U },
+    syncedAt: Date.now(),
+    version: 'v6',
+  };
+  try {
+    setClouRowState('syncing', '↻ Syncing…');
+    if (typeof window.storage !== 'undefined') {
+      // window.storage: shared=false keeps data private to this user
+      await window.storage.set(cloudKey, JSON.stringify(data), false);
+      const now = new Date().toLocaleTimeString();
+      lastSyncTime = now;
+      document.getElementById('gauth-sync-time').textContent = 'Last sync: ' + now;
+      setClouRowState('ok', '☁️ Cloud Sync Active');
+      return true;
+    } else {
+      // Fallback: store in localStorage under cloud key
+      localStorage.setItem('__cloud_' + cloudKey, JSON.stringify(data));
+      setClouRowState('ok', '☁️ Saved Locally');
+      return true;
+    }
+  } catch(e) {
+    console.warn('Cloud sync failed:', e);
+    setClouRowState('error', '⚠️ Sync Failed');
+    return false;
+  }
+}
+
+/* ── Load profile from cloud ──────────────────────────────────── */
+async function loadFromCloud(sub) {
+  if (!sub) return false;
+  const cloudKey = CLOUD_KEY_PREFIX + sub;
+  try {
+    let raw = null;
+    if (typeof window.storage !== 'undefined') {
+      const result = await window.storage.get(cloudKey, false);
+      if (result && result.value) raw = result.value;
+    }
+    // Fallback: localStorage cloud key
+    if (!raw) raw = localStorage.getItem('__cloud_' + cloudKey);
+    if (!raw) return false;
+
+    const data = JSON.parse(raw);
+    if (!data || !data.profile) return false;
+
+    // Merge strategy: use cloud data if it has more XP or is same XP
+    // This prevents losing progress if user played offline
+    const cloudXP = data.profile.xp || 0;
+    const localXP = U.xp || 0;
+
+    if (cloudXP >= localXP) {
+      // Cloud wins — apply cloud profile
+      applyProfile(data.profile);
+    } else {
+      // Local is ahead — sync local to cloud
+      await syncToCloud(sub);
+    }
+
+    const syncTime = new Date(data.syncedAt).toLocaleTimeString();
+    document.getElementById('gauth-sync-time').textContent = 'Last sync: ' + syncTime;
+    lastSyncTime = syncTime;
+    setClouRowState('ok', '☁️ Cloud Sync Active');
+    return true;
+  } catch(e) {
+    console.warn('Load from cloud failed:', e);
+    return false;
+  }
+}
+
+/* ── Manual sync trigger ─────────────────────────────────────── */
+async function syncNow() {
+  if (!gUser) { showSyncToast('⚠️ Sign in to sync', 'error'); return; }
+  if (syncInProgress) return;
+  syncInProgress = true;
+  const ok = await syncToCloud(gUser.sub);
+  syncInProgress = false;
+  if (ok) showSyncToast('✅ Synced to cloud!', 'success');
+  else    showSyncToast('❌ Sync failed', 'error');
+}
+
+/* ── Helper: set cloud row visual state ─────────────────────── */
+function setClouRowState(state, label) {
+  const row = document.getElementById('gauth-cloud-row');
+  const lbl = document.getElementById('gauth-cloud-lbl');
+  if (!row || !lbl) return;
+  row.className = 'gauth-cloud-row' + (state !== 'ok' ? ' ' + state : '');
+  lbl.textContent = label;
+}
+
+/* ── Sync toast (small, dismisses after 2.5s) ────────────────── */
+function showSyncToast(msg, type) {
+  const t = document.createElement('div');
+  t.style.cssText = [
+    'position:fixed','bottom:20px','left:50%','transform:translateX(-50%) translateY(0)',
+    'background:var(--surf2)','border:1px solid var(--bdr2)','border-radius:100px',
+    'padding:8px 18px','font-size:12px','font-weight:700','z-index:8000',
+    'box-shadow:0 6px 24px rgba(0,0,0,.4)','white-space:nowrap',
+    'animation:fadeIn .3s ease','transition:opacity .3s,transform .3s',
+    type==='success'?'border-color:rgba(16,185,129,.45);color:var(--green)':
+    type==='error'  ?'border-color:rgba(239,68,68,.45);color:var(--red)':
+                     'color:var(--text2)'
+  ].join(';');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(8px)'; setTimeout(()=>t.remove(),320); }, 2500);
+}
+
 function init(){
   loadTheme();
   buildFlags();
+  initGoogleAuth();
 
   // BroadcastChannel: live LB updates across tabs
   if(lbChannel){
@@ -1605,6 +1980,9 @@ document.addEventListener('keydown',e=>{
 addEventListener('resize',()=>{const c=document.getElementById('confetti-canvas');c.width=innerWidth;c.height=innerHeight;});
 
 init();
+
 </script>
+
+
 </body>
 </html>
