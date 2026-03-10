@@ -3,7 +3,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=5.0,viewport-fit=cover">
 <title>Fluentex — AI English Learning Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Nunito+Black&display=swap" rel="stylesheet">
 <style>
@@ -415,9 +415,214 @@ footer strong{color:var(--text2);font-weight:700}
 .opt { font-weight: 700 !important; }
 .fc-def, .fb-lbl { font-weight: 800 !important; }
 body { letter-spacing: 0.1px; }
+
+/* ══ SIDEBAR ══════════════════════════════════════════════════════════════ */
+.sb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:490;opacity:0;pointer-events:none;transition:opacity .35s var(--smooth)}
+.sb-overlay.on{opacity:1;pointer-events:all}
+.sidebar{position:fixed;top:0;right:0;height:100%;width:290px;max-width:88vw;background:var(--surf2);border-left:1.5px solid var(--bdr2);z-index:500;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .38s var(--spring);box-shadow:-8px 0 40px var(--shadow);overflow-y:auto}
+.sidebar.open{transform:translateX(0)}
+.sb-head{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 16px;border-bottom:1px solid var(--bdr)}
+.sb-brand{display:flex;align-items:center;gap:8px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sb-close{width:34px;height:34px;border-radius:50%;background:var(--surf);border:1.5px solid var(--bdr);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:border-color .2s,color .2s,background .2s;flex-shrink:0}
+.sb-close:hover{border-color:var(--red);color:var(--red)}
+.sb-section{padding:16px 20px;border-bottom:1px solid var(--bdr)}
+.sb-section-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);margin-bottom:12px}
+/* Theme row */
+.sb-theme-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surf);border:1.5px solid var(--bdr);border-radius:14px;cursor:pointer;transition:border-color .2s,background .2s}
+.sb-theme-row:hover{border-color:var(--blue);background:rgba(0,195,255,.06)}
+.sb-theme-lbl{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}
+.sb-theme-ico{font-size:20px;width:36px;height:36px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;transition:background .3s}
+.theme-pill{width:48px;height:27px;border-radius:100px;background:var(--bg3);border:1.5px solid var(--bdr2);position:relative;cursor:pointer;transition:background .35s,border-color .35s;flex-shrink:0}
+[data-theme="light"] .theme-pill{background:rgba(0,195,255,.2);border-color:var(--blue)}
+.theme-pill-knob{position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:linear-gradient(135deg,var(--yellow),var(--orange));transition:transform .42s var(--spring),background .35s;display:flex;align-items:center;justify-content:center;font-size:11px}
+[data-theme="light"] .theme-pill-knob{transform:translateX(21px);background:linear-gradient(135deg,var(--blue),var(--purple))}
+/* Nav links */
+.sb-nav{display:flex;flex-direction:column;gap:4px}
+.sb-link{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:14px;cursor:pointer;font-weight:700;font-size:14px;color:var(--text2);transition:background .18s,color .18s;border:1.5px solid transparent}
+.sb-link:hover{background:var(--surf);color:var(--text);border-color:var(--bdr)}
+.sb-link.active-link{background:rgba(0,195,255,.1);color:var(--blue);border-color:rgba(0,195,255,.25)}
+.sb-link-ico{font-size:20px;width:36px;height:36px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .18s}
+.sb-link:hover .sb-link-ico{background:rgba(0,195,255,.12)}
+/* Stats in sidebar */
+.sb-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sb-stat{background:var(--surf);border:1.5px solid var(--bdr);border-radius:14px;padding:12px;text-align:center}
+.sb-stat-val{font-family:'Nunito',sans-serif;font-size:22px;font-weight:900;display:block;margin-bottom:2px}
+.sb-stat-lbl{font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.sb-stat.fire .sb-stat-val{color:var(--orange)}.sb-stat.exp .sb-stat-val{color:var(--yellow)}.sb-stat.hp .sb-stat-val{color:var(--red)}.sb-stat.streak .sb-stat-val{color:var(--green)}
+/* Legal links */
+.sb-legal{display:flex;flex-wrap:wrap;gap:8px;padding:16px 20px;margin-top:auto}
+.sb-legal a{font-size:11px;color:var(--text3);font-weight:600;cursor:pointer;text-decoration:none;transition:color .2s}
+.sb-legal a:hover{color:var(--blue)}
+.sb-legal span{color:var(--bdr2);font-size:11px}
+/* Hamburger button */
+.hbtn{width:38px;height:38px;border-radius:12px;background:var(--surf);border:1.5px solid var(--bdr);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;transition:border-color .2s,background .2s;flex-shrink:0}
+.hbtn:hover{border-color:var(--blue);background:rgba(0,195,255,.08)}
+.hbar{width:18px;height:2px;background:var(--text2);border-radius:2px;transition:background .2s}
+.hbtn:hover .hbar{background:var(--blue)}
+
+/* ══ LEGAL MODALS ════════════════════════════════════════════════════════ */
+.legal-modal{max-width:540px;max-height:80vh;overflow-y:auto;text-align:left}
+.legal-modal::-webkit-scrollbar{width:4px}.legal-modal::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.legal-title{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;margin-bottom:16px;color:var(--text)}
+.legal-section{margin-bottom:18px}
+.legal-section h3{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.legal-section p{font-size:12px;color:var(--text2);line-height:1.7;font-weight:500}
+.legal-date{font-size:10px;color:var(--text3);margin-bottom:20px;font-weight:600}
+
+/* ══ RESPONSIVE / FLUID LAYOUT ═══════════════════════════════════════════ */
+html { font-size: clamp(13px, 2vw, 16px); }
+
+/* Fluid containers */
+.pg, .sub-body { padding: clamp(14px, 4vw, 28px) clamp(12px, 4vw, 24px); }
+.quiz-wrap { padding: 0 clamp(10px, 4vw, 24px); }
+
+/* Nav wrapping on tiny screens */
+.nav-right { gap: clamp(4px, 1.5vw, 8px); flex-wrap: nowrap; }
+.nstat { padding: 4px clamp(6px, 2vw, 14px); font-size: clamp(11px, 2.5vw, 14px); }
+
+/* Cards */
+.lv-grid { grid-template-columns: repeat(auto-fill, minmax(clamp(200px, 40vw, 280px), 1fr)); }
+.cat-grid { grid-template-columns: repeat(auto-fill, minmax(clamp(180px, 40vw, 250px), 1fr)); }
+.badges-grid { grid-template-columns: repeat(auto-fill, minmax(clamp(120px, 28vw, 160px), 1fr)); }
+.perf-grid { grid-template-columns: repeat(auto-fill, minmax(clamp(100px, 28vw, 160px), 1fr)); }
+.res-stats { grid-template-columns: repeat(auto-fill, minmax(clamp(90px, 25vw, 140px), 1fr)); }
+.flag-grid { grid-template-columns: repeat(auto-fill, minmax(clamp(52px, 12vw, 70px), 1fr)); }
+.opts { grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 38vw, 280px), 1fr)); }
+
+/* Typography fluid */
+.hero h2 { font-size: clamp(16px, 4vw, 26px); }
+.splash-name { font-size: clamp(36px, 10vw, 56px); }
+.res-title { font-size: clamp(28px, 7vw, 44px); }
+.fc-word { font-size: clamp(26px, 7vw, 44px); }
+.q-text { font-size: clamp(14px, 3.5vw, 19px); }
+.brand-name { font-size: clamp(17px, 4vw, 22px); }
+.r-val { font-size: clamp(22px, 5vw, 32px); }
+
+/* Flashcard height */
+.fc-scene { height: clamp(220px, 38vw, 280px); }
+
+/* Sidebar on small screens */
+.sidebar { width: min(290px, 90vw); }
+
+@media (max-width: 480px) {
+  .greet-str { display: none; }
+  .nstat.hp { display: none; }
+  .brand-name { font-size: 17px; }
+  .beta-tag { display: none; }
+  .hero { padding: 18px; }
+  .hero p { display: none; }
+  .q-card { padding: 18px; }
+  .modal { padding: 24px 18px; }
+  .legal-modal { padding: 20px 14px; }
+}
+@media (max-width: 360px) {
+  .nstat.fire { display: none; }
+  .badge-btn { padding: 4px 8px; font-size: 11px; }
+}
+@media (min-width: 1200px) {
+  .pg { padding: 28px 24px; }
+  .lv-grid { grid-template-columns: repeat(3, 1fr); }
+  .cat-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1600px) {
+  .pg { max-width: 1100px; }
+  .sub-body { max-width: 980px; }
+}
 </style>
 </head>
 <body>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-head">
+    <div class="sb-brand"><span>🏆</span> Fluentex</div>
+    <button class="sb-close" onclick="closeSidebar()">✕</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="sb-section">
+    <div class="sb-section-lbl">📊 Your Stats</div>
+    <div class="sb-stats-grid">
+      <div class="sb-stat fire"><span class="sb-stat-val" id="sb-str">0</span><span class="sb-stat-lbl">🔥 Streak</span></div>
+      <div class="sb-stat exp"><span class="sb-stat-val" id="sb-xp">0</span><span class="sb-stat-lbl">⚡ XP</span></div>
+      <div class="sb-stat hp"><span class="sb-stat-val" id="sb-hp">5</span><span class="sb-stat-lbl">❤️ Hearts</span></div>
+      <div class="sb-stat streak"><span class="sb-stat-val" id="sb-qz">0</span><span class="sb-stat-lbl">📚 Quizzes</span></div>
+    </div>
+  </div>
+
+  <!-- Theme -->
+  <div class="sb-section">
+    <div class="sb-section-lbl">🎨 Appearance</div>
+    <div class="sb-theme-row" onclick="toggleTheme()">
+      <div class="sb-theme-lbl">
+        <div class="sb-theme-ico" id="sb-theme-ico">🌙</div>
+        <div>
+          <div style="font-size:14px;font-weight:700" id="sb-theme-lbl">Dark Mode</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:1px">Tap to switch</div>
+        </div>
+      </div>
+      <div class="theme-pill" onclick="event.stopPropagation();toggleTheme()">
+        <div class="theme-pill-knob" id="theme-pill-knob">🌙</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="sb-section">
+    <div class="sb-section-lbl">🗺️ Navigate</div>
+    <div class="sb-nav">
+      <div class="sb-link" onclick="closeSidebar();showScreen('home')"><div class="sb-link-ico">🏠</div>Home</div>
+      <div class="sb-link" onclick="closeSidebar();showScreen('level-screen')"><div class="sb-link-ico">📚</div>Start Learning</div>
+      <div class="sb-link" onclick="closeSidebar();showScreen('badges')"><div class="sb-link-ico">🏅</div>My Badges</div>
+    </div>
+  </div>
+
+  <!-- Legal -->
+  <div class="sb-legal">
+    <a onclick="openLegal('tos')">Terms of Use</a>
+    <span>·</span>
+    <a onclick="openLegal('pp')">Privacy Policy</a>
+    <span>·</span>
+    <a href="mailto:support@fluentex.ai">Contact</a>
+    <div style="width:100%;margin-top:6px;font-size:10px;color:var(--text3);font-weight:600">© 2026 Classify Technologies LLC · v1.6.0 BETA</div>
+  </div>
+</div>
+
+<!-- TERMS OF USE MODAL -->
+<div class="modal-bg" id="tos-modal">
+<div class="modal legal-modal">
+  <div class="legal-title">📋 Terms of Use</div>
+  <div class="legal-date">Last updated: January 1, 2026</div>
+  <div class="legal-section"><h3>1. Acceptance of Terms</h3><p>By accessing or using Fluentex ("the Service"), you agree to be bound by these Terms of Use. If you do not agree to these terms, please do not use the Service.</p></div>
+  <div class="legal-section"><h3>2. Use of the Service</h3><p>Fluentex is an AI-powered English learning platform. You may use the Service for personal, non-commercial educational purposes. You agree not to misuse, reverse-engineer, or attempt to gain unauthorized access to any part of the Service.</p></div>
+  <div class="legal-section"><h3>3. AI-Generated Content</h3><p>Quiz questions, flashcards, and vocabulary content are generated by AI. While we strive for accuracy, we do not guarantee that all AI-generated content is error-free. Educational content should be verified with authoritative sources.</p></div>
+  <div class="legal-section"><h3>4. User Data</h3><p>Your progress, scores, and learning history are stored locally on your device. Leaderboard data (name, flag, XP score) may be stored and displayed publicly to all users of the Service.</p></div>
+  <div class="legal-section"><h3>5. Leaderboard</h3><p>By submitting your name and score to the global leaderboard, you consent to that information being visible to other users. Do not use real personal information as your username.</p></div>
+  <div class="legal-section"><h3>6. Intellectual Property</h3><p>All design, branding, and original content within Fluentex is the property of Classify Technologies LLC. You may not reproduce or distribute any part of the Service without written permission.</p></div>
+  <div class="legal-section"><h3>7. Limitation of Liability</h3><p>Fluentex is provided "as is" without warranties of any kind. Classify Technologies LLC shall not be liable for any damages arising from your use of the Service.</p></div>
+  <div class="legal-section"><h3>8. Changes to Terms</h3><p>We reserve the right to modify these terms at any time. Continued use of the Service constitutes acceptance of any changes.</p></div>
+  <button class="btn-go" onclick="closeModal('tos-modal')" style="width:100%;margin-top:8px">Got it ✓</button>
+</div></div>
+
+<!-- PRIVACY POLICY MODAL -->
+<div class="modal-bg" id="pp-modal">
+<div class="modal legal-modal">
+  <div class="legal-title">🔒 Privacy Policy</div>
+  <div class="legal-date">Last updated: January 1, 2026</div>
+  <div class="legal-section"><h3>1. Information We Collect</h3><p>Fluentex stores your chosen username, country flag, XP score, streak count, quiz history, badge progress, and performance statistics. This data is stored locally in your browser (localStorage / sessionStorage).</p></div>
+  <div class="legal-section"><h3>2. Global Leaderboard</h3><p>If you participate in the global leaderboard, your username, flag emoji, XP score, and streak count are stored in a shared database visible to all users. We recommend using a nickname rather than your real name.</p></div>
+  <div class="legal-section"><h3>3. AI API Usage</h3><p>Quiz questions, flashcards, and Word of the Day are generated via the Anthropic Claude API. Your selected level and category are sent to generate relevant content. No personally identifiable information is included in these requests.</p></div>
+  <div class="legal-section"><h3>4. Cookies & Local Storage</h3><p>We use browser localStorage and sessionStorage to persist your learning progress across sessions. We do not use tracking cookies or third-party analytics.</p></div>
+  <div class="legal-section"><h3>5. Data Sharing</h3><p>We do not sell, rent, or share your personal data with third parties, except as required by law or as necessary to operate the leaderboard feature.</p></div>
+  <div class="legal-section"><h3>6. Data Retention</h3><p>Your data remains on your device until you clear your browser storage. Leaderboard entries may be retained for up to 12 months.</p></div>
+  <div class="legal-section"><h3>7. Children's Privacy</h3><p>Fluentex is designed for users of all ages. We do not knowingly collect personal information from children under 13. Parents may clear their child's data by clearing browser storage.</p></div>
+  <div class="legal-section"><h3>8. Contact</h3><p>For privacy-related concerns, contact us at: <strong style="color:var(--blue)">privacy@fluentex.ai</strong></p></div>
+  <button class="btn-go" onclick="closeModal('pp-modal')" style="width:100%;margin-top:8px">Got it ✓</button>
+</div></div>
+
 <canvas id="bg-canvas"></canvas>
 <canvas id="confetti-canvas"></canvas>
 <div id="loader"><div class="ldr-ring"></div><div class="ldr-txt">Fluentex AI</div><div class="ldr-sub" id="ldr-sub">Generating your lesson...</div></div>
@@ -473,8 +678,8 @@ body { letter-spacing: 0.1px; }
       <div class="nstat exp">⚡ <span id="n-xp">0</span></div>
       <div class="nstat hp">❤️ <span id="n-hp">5</span></div>
       <button class="badge-btn" onclick="showScreen('badges')">🏅 <span id="badge-cnt">0</span><span class="bdot" id="bdot"></span></button>
-      <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme"><div class="theme-knob" id="tknob">🌙</div></button>
-    </div>
+      <button class="hbtn" onclick="openSidebar()" aria-label="Menu"><div class="hbar"></div><div class="hbar"></div><div class="hbar"></div></button>
+      </div>
   </nav>
   <div class="pg">
     <div class="greet">
@@ -510,26 +715,59 @@ body { letter-spacing: 0.1px; }
       <div class="lb-empty">Loading...</div>
     </div>
   </div>
-  <footer><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.<br><span class="ver-chip">🔖 v1.5.0 BETA</span></footer>
+  <footer>
+    <div style="margin-bottom:6px"><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <a onclick="openLegal('tos')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Terms of Use</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a href="mailto:support@fluentex.ai" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+    </div>
+    <span class="ver-chip">🔖 v1.6.0 BETA</span>
+  </footer>
 </div>
 
 <!-- LEVEL SELECT -->
 <div id="level-screen" class="screen">
-  <div class="sub-hdr"><button class="back-btn" onclick="showScreen('home')">← Back</button><div class="sub-title">🎯 Select CEFR Level</div><button class="theme-btn" style="margin-left:auto" onclick="toggleTheme()"><div class="theme-knob">🌙</div></button></div>
+  <div class="sub-hdr"><button class="back-btn" onclick="showScreen('home')">← Back</button><div class="sub-title">🎯 Select CEFR Level</div>
+    <button class="hbtn" onclick="openSidebar()" aria-label="Menu"><div class="hbar"></div><div class="hbar"></div><div class="hbar"></div></button></div>
   <div class="sub-body"><p style="color:var(--text2);font-size:13px;margin-bottom:18px;line-height:1.65;font-weight:500">Choose your English proficiency level. The AI adapts all content to your performance!</p><div class="lv-grid" id="lv-page"></div></div>
-  <footer><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.<br><span class="ver-chip">🔖 v1.5.0 BETA</span></footer>
+  <footer>
+    <div style="margin-bottom:6px"><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <a onclick="openLegal('tos')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Terms of Use</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a href="mailto:support@fluentex.ai" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+    </div>
+    <span class="ver-chip">🔖 v1.6.0 BETA</span>
+  </footer>
 </div>
 
 <!-- CATEGORY -->
 <div id="category-screen" class="screen">
-  <div class="sub-hdr"><button class="back-btn" onclick="showScreen('level-screen')">← Back</button><div class="sub-title" id="cat-ttl">Choose Category</div><button class="theme-btn" style="margin-left:auto" onclick="toggleTheme()"><div class="theme-knob">🌙</div></button></div>
+  <div class="sub-hdr"><button class="back-btn" onclick="showScreen('level-screen')">← Back</button><div class="sub-title" id="cat-ttl">Choose Category</div>
+    <button class="hbtn" onclick="openSidebar()" aria-label="Menu"><div class="hbar"></div><div class="hbar"></div><div class="hbar"></div></button></div>
   <div class="sub-body"><p style="color:var(--text2);font-size:12px;margin-bottom:16px;font-weight:500">Each session: <strong style="color:var(--blue)">🃏 AI Flashcards</strong> → <strong style="color:var(--green)">🧠 Adaptive Quiz</strong></p><div class="cat-grid" id="cat-grid"></div></div>
-  <footer><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.<br><span class="ver-chip">🔖 v1.5.0 BETA</span></footer>
+  <footer>
+    <div style="margin-bottom:6px"><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <a onclick="openLegal('tos')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Terms of Use</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a href="mailto:support@fluentex.ai" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+    </div>
+    <span class="ver-chip">🔖 v1.6.0 BETA</span>
+  </footer>
 </div>
 
 <!-- TRAINING -->
 <div id="training-screen" class="screen">
-  <div class="sub-hdr"><button class="back-btn" onclick="showScreen('category-screen')">← Back</button><div class="sub-title">🃏 AI Flashcard Training</div><div style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:600" id="tr-tag"></div><button class="theme-btn" onclick="toggleTheme()"><div class="theme-knob">🌙</div></button></div>
+  <div class="sub-hdr"><button class="back-btn" onclick="showScreen('category-screen')">← Back</button><div class="sub-title">🃏 AI Flashcard Training</div><div style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:600" id="tr-tag"></div>
+    <button class="hbtn" onclick="openSidebar()" aria-label="Menu"><div class="hbar"></div><div class="hbar"></div><div class="hbar"></div></button></div>
   <div class="tr-hdr"><div class="fc-prog"><div class="fc-dots" id="fc-dots"></div><div class="fc-cnt" id="fc-cnt">Card 1 of 5</div></div></div>
   <div class="tr-body">
     <div class="fc-scene" onclick="flipCard()">
@@ -545,14 +783,24 @@ body { letter-spacing: 0.1px; }
     </div>
     <button class="start-quiz-btn" id="start-quiz-btn" disabled onclick="beginQuiz()">🧠 Start Adaptive Quiz!</button>
   </div>
-  <footer><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.<br><span class="ver-chip">🔖 v1.5.0 BETA</span></footer>
+  <footer>
+    <div style="margin-bottom:6px"><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <a onclick="openLegal('tos')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Terms of Use</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a href="mailto:support@fluentex.ai" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+    </div>
+    <span class="ver-chip">🔖 v1.6.0 BETA</span>
+  </footer>
 </div>
 
 <!-- QUIZ -->
 <div id="quiz-screen" class="screen">
   <nav class="nav">
     <div class="nav-brand"><span class="brand-trophy">🏆</span><span class="brand-name">Fluentex</span><span class="beta-tag">BETA</span></div>
-    <div class="nav-right"><div class="nstat fire">🔥 <span id="qn-str">0</span></div><div class="nstat exp">⚡ <span id="qn-xp">0</span></div><button class="theme-btn" onclick="toggleTheme()"><div class="theme-knob">🌙</div></button></div>
+    <div class="nav-right"><div class="nstat fire">🔥 <span id="qn-str">0</span></div><div class="nstat exp">⚡ <span id="qn-xp">0</span></div><button class="hbtn" onclick="openSidebar()" aria-label="Menu"><div class="hbar"></div><div class="hbar"></div><div class="hbar"></div></button></div>
   </nav>
   <div class="quiz-wrap">
     <div class="quiz-top"><button class="quit-btn" onclick="exitQuiz()">✕</button><div class="q-prog-wrap"><div class="q-prog-fill" id="q-prog" style="width:0%"></div></div><div class="q-hearts" id="q-hearts"></div></div>
@@ -560,7 +808,17 @@ body { letter-spacing: 0.1px; }
     <div id="fb-area"></div>
     <div class="submit-row"><button class="check-btn" id="check-btn" disabled onclick="checkAns()">CHECK ✓</button></div>
   </div>
-  <footer><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.<br><span class="ver-chip">🔖 v1.5.0 BETA</span></footer>
+  <footer>
+    <div style="margin-bottom:6px"><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <a onclick="openLegal('tos')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Terms of Use</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a href="mailto:support@fluentex.ai" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+    </div>
+    <span class="ver-chip">🔖 v1.6.0 BETA</span>
+  </footer>
 </div>
 
 <!-- RESULTS -->
@@ -577,14 +835,35 @@ body { letter-spacing: 0.1px; }
     <div class="res-bonus" id="res-bonus">🔥 Streak Bonus: +20 XP</div>
     <div class="res-acts"><button class="btn-go" onclick="retryQuiz()">🔄 Retry</button><button class="btn-back" onclick="showScreen('home')">🏠 Home</button></div>
   </div>
-  <footer><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.<br><span class="ver-chip">🔖 v1.5.0 BETA</span></footer>
+  <footer>
+    <div style="margin-bottom:6px"><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <a onclick="openLegal('tos')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Terms of Use</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a href="mailto:support@fluentex.ai" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+    </div>
+    <span class="ver-chip">🔖 v1.6.0 BETA</span>
+  </footer>
 </div>
 
 <!-- BADGES -->
 <div id="badges" class="screen">
-  <div class="sub-hdr"><button class="back-btn" onclick="showScreen('home')">← Back</button><div class="sub-title">🏅 Your Badges</div><div style="margin-left:auto;font-size:12px;color:var(--text2);font-weight:600" id="badge-count-lbl">0 / 0 earned</div><button class="theme-btn" onclick="toggleTheme()"><div class="theme-knob">🌙</div></button></div>
+  <div class="sub-hdr"><button class="back-btn" onclick="showScreen('home')">← Back</button><div class="sub-title">🏅 Your Badges</div><div style="margin-left:auto;font-size:12px;color:var(--text2);font-weight:600" id="badge-count-lbl">0 / 0 earned</div>
+    <button class="hbtn" onclick="openSidebar()" aria-label="Menu"><div class="hbar"></div><div class="hbar"></div><div class="hbar"></div></button></div>
   <div class="sub-body"><p style="color:var(--text2);font-size:13px;margin-bottom:18px;line-height:1.65;font-weight:500">Earn badges by learning consistently, completing quizzes and hitting milestones!</p><div class="badges-grid" id="badges-grid"></div></div>
-  <footer><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.<br><span class="ver-chip">🔖 v1.5.0 BETA</span></footer>
+  <footer>
+    <div style="margin-bottom:6px"><strong>© 2026 Classify Technologies LLC.</strong> All Rights Reserved. &nbsp;Made with <span class="fhrt">❤️</span> in India. &nbsp;Developed by <strong>SubhraniL</strong>.</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <a onclick="openLegal('tos')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Terms of Use</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
+      <span style="color:var(--bdr2)">·</span>
+      <a href="mailto:support@fluentex.ai" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+    </div>
+    <span class="ver-chip">🔖 v1.6.0 BETA</span>
+  </footer>
 </div>
 
 <script>
@@ -744,22 +1023,22 @@ let qz={questions:[],idx:0,correct:0,wrong:0,t0:0,answered:false,mcqSel:null,arr
 let lbTimer=null;
 
 /* ─── STORAGE ────────────────────────────── */
-const KP='fx_pro_v5',KL='fx_lb_v5',KW='fx_wod_v5',KT='fx_theme_v5';
+const KP='fx_pro_v5',KL='fx_lb_v6',KW='fx_wod_v5',KT='fx_theme_v5';
 function sp(){const d=JSON.stringify(U);try{localStorage.setItem(KP,d)}catch(e){}try{sessionStorage.setItem(KP,d)}catch(e){}}
 function lp(){
   try{const s=sessionStorage.getItem(KP)||localStorage.getItem(KP);if(s){const p=JSON.parse(s);if(p&&p.name){if(!p.perf)p.perf={vocabulary:{c:0,w:0},grammar:{c:0,w:0},idioms:{c:0,w:0},spelling:{c:0,w:0},conversation:{c:0,w:0},reading:{c:0,w:0}};if(!p.badges)p.badges=[];if(!p.catsPlayed)p.catsPlayed={};Object.assign(U,p);return true;}}}catch(e){}return false;
 }
-function getLB(){try{const s=localStorage.getItem(KL)||sessionStorage.getItem(KL);if(s)return JSON.parse(s);}catch(e){}return[];}
-function pushLB(){
+function getLocalLB(){try{const s=localStorage.getItem(KL)||sessionStorage.getItem(KL);if(s)return JSON.parse(s);}catch(e){}return[];}
+function pushLBEntry(){
   const e={name:U.name,flag:U.flag,xp:U.xp,streak:U.streak};
-  let lb=getLB();const i=lb.findIndex(x=>x.name===e.name);
+  let lb=getLocalLB();const i=lb.findIndex(x=>x.name===e.name);
   if(i>=0)lb[i]=e;else lb.push(e);
   lb.sort((a,b)=>b.xp-a.xp);lb=lb.slice(0,50);
   const d=JSON.stringify(lb);try{localStorage.setItem(KL,d)}catch(e){}try{sessionStorage.setItem(KL,d)}catch(e){}
   if(typeof window.storage!=='undefined'){try{const k='fluentex_lb:'+U.name.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,20);window.storage.set(k,JSON.stringify(e),true);}catch(e){}}
 }
 async function fetchLB(){
-  let all=getLB();
+  let all=getLocalLB();
   if(typeof window.storage!=='undefined'){
     try{
       const list=await window.storage.list('fluentex_lb:',true);
@@ -810,6 +1089,7 @@ function awardBadges(){
       U.badges.push(b.id);sp();
       document.getElementById('bdot').classList.add('on');
       document.getElementById('badge-cnt').textContent=U.badges.length;
+  updateSidebarStats();
       showBadgeToast(b);
     }
   }
@@ -909,16 +1189,170 @@ document.addEventListener('click',e=>{
 });
 
 /* ─── INIT ───────────────────────────────── */
+
+/* ══════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════ */
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sb-overlay').classList.add('on');
+  document.body.style.overflow='hidden';
+  updateSidebarStats();
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('on');
+  document.body.style.overflow='';
+}
+function updateSidebarStats(){
+  const s=document.getElementById('sb-str');const x=document.getElementById('sb-xp');
+  const h=document.getElementById('sb-hp');const q=document.getElementById('sb-qz');
+  if(s)s.textContent=U.streak||0;if(x)x.textContent=U.xp||0;if(h)h.textContent=U.hearts||5;if(q)q.textContent=U.quizzes||0;
+  // Update theme pill text
+  const dark=getTheme()==='dark';
+  const lbl=document.getElementById('sb-theme-lbl');const ico=document.getElementById('sb-theme-ico');
+  const knob=document.getElementById('theme-pill-knob');
+  if(lbl)lbl.textContent=dark?'Dark Mode':'Light Mode';
+  if(ico)ico.textContent=dark?'🌙':'☀️';
+  if(knob)knob.textContent=dark?'🌙':'☀️';
+}
+
+/* ══════════════════════════════════════════
+   LEGAL MODALS
+══════════════════════════════════════════ */
+function openLegal(which){
+  closeSidebar();
+  document.getElementById(which+'-modal').classList.add('on');
+}
+
+/* ══════════════════════════════════════════
+   GLOBAL LEADERBOARD — real-time via shared storage
+   Falls back to localStorage + BroadcastChannel
+══════════════════════════════════════════ */
+let lbChannel = null;
+try { lbChannel = new BroadcastChannel('fluentex_lb'); } catch(e) {}
+
+async function pushLBEntry(){
+  if(!U.name) return;
+  const entry = {name:U.name, flag:U.flag, xp:U.xp, streak:U.streak, ts:Date.now()};
+  // 1. Local storage (always)
+  pushLocalLBEntry(entry);
+  // 2. BroadcastChannel for same-origin cross-tab live updates
+  try { if(lbChannel) lbChannel.postMessage({type:'lb_update', entry}); } catch(e){}
+  // 3. window.storage shared API (cross-session global)
+  if(typeof window.storage !== 'undefined'){
+    try{
+      const key = 'fx_lb_v6:' + U.name.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,24);
+      await window.storage.set(key, JSON.stringify(entry), true);
+    }catch(e){}
+  }
+}
+function pushLocalLBEntry(entry){
+  let lb = getLocalLB();
+  const i = lb.findIndex(e=>e.name===entry.name);
+  if(i>=0) lb[i]=entry; else lb.push(entry);
+  lb.sort((a,b)=>b.xp-a.xp); lb=lb.slice(0,100);
+  const d=JSON.stringify(lb);
+  try{localStorage.setItem(KL,d)}catch(e){}try{sessionStorage.setItem(KL,d)}catch(e){}
+}
+function getLocalLB(){
+  try{const s=localStorage.getItem(KL)||sessionStorage.getItem(KL);if(s)return JSON.parse(s);}catch(e){}return[];
+}
+async function fetchGlobalLB(){
+  let all = getLocalLB();
+  // Try window.storage for real cross-session data
+  if(typeof window.storage !== 'undefined'){
+    try{
+      const list = await window.storage.list('fx_lb_v6:',true);
+      if(list && list.keys && list.keys.length){
+        const remote=[];
+        // Fetch in parallel batches of 10
+        const keys = list.keys.slice(0,80);
+        for(let i=0;i<keys.length;i+=10){
+          const batch=keys.slice(i,i+10);
+          const results=await Promise.allSettled(batch.map(k=>window.storage.get(k,true)));
+          results.forEach(r=>{if(r.status==='fulfilled'&&r.value?.value){try{remote.push(JSON.parse(r.value.value));}catch(e){}}});
+        }
+        // Merge: prefer remote (more up to date), keep local only entries
+        const merged=[...remote];
+        all.forEach(le=>{if(!merged.find(e=>e.name===le.name))merged.push(le);});
+        merged.sort((a,b)=>b.xp-a.xp);
+        // Cache merged locally
+        try{localStorage.setItem(KL,JSON.stringify(merged.slice(0,100)));}catch(e){}
+        return merged;
+      }
+    }catch(e){ console.warn('Global LB fetch failed, using local:', e); }
+  }
+  return all;
+}
+
+/* ══════════════════════════════════════════
+   SAVE MIGRATION — preserve progress across updates
+   Tries all past storage keys and merges data
+══════════════════════════════════════════ */
+const ALL_KEYS=['fx_pro_v5','fluentex_pro_v4','fluentex_profile_v2','fluentex_pro_v3'];
+function loadProfileWithMigration(){
+  // Try current key first
+  try{
+    const s=sessionStorage.getItem(KP)||localStorage.getItem(KP);
+    if(s){const p=JSON.parse(s);if(p&&p.name){applyProfile(p);return true;}}
+  }catch(e){}
+  // Try legacy keys in order (newest first)
+  for(const k of ALL_KEYS){
+    try{
+      const s=localStorage.getItem(k)||sessionStorage.getItem(k);
+      if(s){const p=JSON.parse(s);if(p&&p.name){
+        console.log('Migrated profile from key:',k);
+        applyProfile(p);
+        sp(); // re-save under current key
+        // Clean up old key to avoid confusion
+        try{localStorage.removeItem(k);}catch(e){}
+        return true;
+      }}
+    }catch(e){}
+  }
+  return false;
+}
+function applyProfile(p){
+  // Ensure all fields exist with defaults
+  const defaults={xp:0,streak:0,hearts:5,maxHearts:5,lastDay:'',quizzes:0,
+    perfectQuizzes:0,fastQuizzes:0,badges:[],catsPlayed:{},
+    perf:{vocabulary:{c:0,w:0},grammar:{c:0,w:0},idioms:{c:0,w:0},
+          spelling:{c:0,w:0},conversation:{c:0,w:0},reading:{c:0,w:0}}};
+  Object.keys(defaults).forEach(k=>{ if(p[k]===undefined||p[k]===null) p[k]=defaults[k]; });
+  // Migrate perf structure
+  if(!p.perf||typeof p.perf!=='object') p.perf=defaults.perf;
+  Object.keys(defaults.perf).forEach(cat=>{
+    if(!p.perf[cat]||typeof p.perf[cat]!=='object') p.perf[cat]={c:0,w:0};
+    if(typeof p.perf[cat].c!=='number') p.perf[cat].c=0;
+    if(typeof p.perf[cat].w!=='number') p.perf[cat].w=0;
+  });
+  if(!Array.isArray(p.badges)) p.badges=[];
+  if(!p.catsPlayed||typeof p.catsPlayed!=='object') p.catsPlayed={};
+  Object.assign(U,p);
+}
+
 function init(){
   loadTheme();
   buildFlags();
+
+  // BroadcastChannel: live LB updates across tabs
+  if(lbChannel){
+    lbChannel.onmessage = (e)=>{
+      if(e.data&&e.data.type==='lb_update'&&e.data.entry){
+        pushLocalLBEntry(e.data.entry);
+        renderLB();
+      }
+    };
+  }
+
   initBg();
   renderLvGrids();
   setTimeout(async()=>{
-    if(lp()&&U.name){
+    if(loadProfileWithMigration()&&U.name){
       checkStreak();sp();
       showScreen('home');updateUI();loadWoD();renderPerf();renderBadges();renderLB();startLBPoll();
-      pushLB();
+      pushLBEntry();
       if(U.streak>0){
         setTimeout(()=>{
           document.getElementById('sm-ico').textContent=U.streak>=7?'🔥':'⚡';
@@ -952,7 +1386,7 @@ async function saveName(){
   const raw=document.getElementById('ninp').value.trim();
   if(!raw){const el=document.getElementById('ninp');el.classList.add('err');setTimeout(()=>el.classList.remove('err'),1400);return;}
   U={name:raw,flag:selFlag.f,xp:0,streak:0,hearts:5,maxHearts:5,lastDay:todayIST(),quizzes:0,perfectQuizzes:0,fastQuizzes:0,badges:[],catsPlayed:{},perf:{vocabulary:{c:0,w:0},grammar:{c:0,w:0},idioms:{c:0,w:0},spelling:{c:0,w:0},conversation:{c:0,w:0},reading:{c:0,w:0}}};
-  sp();closeModal('name-modal');updateUI();renderPerf();renderBadges();renderLB();startLBPoll();pushLB();
+  sp();closeModal('name-modal');updateUI();renderPerf();renderBadges();renderLB();startLBPoll();pushLBEntry();
 }
 
 /* ─── UI UPDATE ──────────────────────────── */
@@ -969,6 +1403,7 @@ function updateUI(){
   document.getElementById('n-str').textContent=U.streak;document.getElementById('n-xp').textContent=U.xp;document.getElementById('n-hp').textContent=U.hearts;
   document.getElementById('qn-str').textContent=U.streak;document.getElementById('qn-xp').textContent=U.xp;
   document.getElementById('badge-cnt').textContent=U.badges.length;
+  updateSidebarStats();
   const lvl=Math.floor(U.xp/100)+1,inLv=U.xp%100;
   const rank=RANKS[Math.min(Math.floor(U.xp/400),RANKS.length-1)];
   document.getElementById('h-lvl').textContent=lvl;document.getElementById('h-rank').textContent=rank;
@@ -994,7 +1429,7 @@ async function loadWoD(){
 /* ─── LEADERBOARD ────────────────────────── */
 async function renderLB(){
   const wrap=document.getElementById('lb-wrap');if(!wrap)return;
-  const all=await fetchLB();
+  const all=await fetchGlobalLB();
   if(U.name){const mi=all.findIndex(e=>e.name===U.name);const me={name:U.name,flag:U.flag,xp:U.xp,streak:U.streak};if(mi>=0)all[mi]=me;else all.push(me);all.sort((a,b)=>b.xp-a.xp);}
   const m=['🥇','🥈','🥉'];
   if(!all.length){wrap.innerHTML='<div class="lb-hdr"><span class="lb-hdr-t">Top Learners</span><div class="lb-live"><div class="lb-dot"></div>LIVE</div></div><div class="lb-empty">No learners yet — be the first! 🚀</div>';return;}
@@ -1130,7 +1565,7 @@ function checkAns(){
   else{const built=qz.arranged.map(x=>x.w).join(' ');ok=built.toLowerCase().replace(/\s+/g,' ').trim()===(qz.arrAns||'').toLowerCase().replace(/\s+/g,' ').trim();ca=qz.arrAns;const z=document.getElementById('ans-zone');z.classList.remove('has-w');z.classList.add(ok?'correct':'wrong');document.querySelectorAll('.bword').forEach(b=>b.style.pointerEvents='none');}
   if(selCat)recPerf(selCat.id,ok);
   if(ok){
-    qz.correct++;const xp=15+Math.floor(Math.random()*11);const prevLvl=Math.floor(U.xp/100);U.xp+=xp;sp();pushLB();updateUI();renderPerf();xpPop('+'+xp+' XP ⚡');burst();
+    qz.correct++;const xp=15+Math.floor(Math.random()*11);const prevLvl=Math.floor(U.xp/100);U.xp+=xp;sp();pushLBEntry();updateUI();renderPerf();xpPop('+'+xp+' XP ⚡');burst();
     if(Math.floor(U.xp/100)>prevLvl)setTimeout(()=>{document.getElementById('lu-body').textContent=`You've reached Level ${Math.floor(U.xp/100)+1}! Keep going, ${fn()}!`;document.getElementById('lvlup-modal').classList.add('on');},800);
   }else{qz.wrong++;U.hearts=Math.max(0,U.hearts-1);renderHearts();document.body.style.outline='3px solid rgba(255,70,104,.28)';setTimeout(()=>document.body.style.outline='none',280);}
   showFB(ok,ca,q.explanation||'');document.getElementById('check-btn').style.display='none';
@@ -1148,7 +1583,7 @@ function endQuiz(){
   const elapsed=Math.round((Date.now()-qz.t0)/1000);const total=qz.correct+qz.wrong;const acc=total>0?Math.round(qz.correct/total*100):0;
   const bonus=acc>=80;if(bonus){U.xp+=20;U.streak++;}
   U.quizzes++;U.lastDay=todayIST();if(acc===100)U.perfectQuizzes=(U.perfectQuizzes||0)+1;if(elapsed<60)U.fastQuizzes=(U.fastQuizzes||0)+1;
-  sp();pushLB();updateUI();renderPerf();awardBadges();setTimeout(renderLB,500);
+  sp();pushLBEntry();updateUI();renderPerf();awardBadges();setTimeout(renderLB,500);
   document.getElementById('res-trophy').textContent=acc===100?'🏆':acc>=80?'⭐':acc>=50?'💪':'📚';
   document.getElementById('res-title').textContent=acc===100?'PERFECT!':acc>=80?'EXCELLENT!':acc>=50?'WELL DONE!':'KEEP GOING!';
   document.getElementById('res-title').style.color=acc>=80?'var(--green)':acc>=50?'var(--blue)':'var(--text2)';
