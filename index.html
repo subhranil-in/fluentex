@@ -528,6 +528,22 @@ html { font-size: clamp(13px, 2vw, 16px); }
   .pg { max-width: 1100px; }
   .sub-body { max-width: 980px; }
 }
+
+#notif-tray{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:8000;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;max-width:94vw;width:440px;}
+.notif-card{width:100%;pointer-events:all;display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-radius:14px;background:var(--card);border:1px solid var(--bdr2);box-shadow:0 8px 32px rgba(0,0,0,.45);animation:notifIn .4s cubic-bezier(.34,1.56,.64,1);cursor:pointer;}
+@keyframes notifIn{from{opacity:0;transform:translateY(-22px) scale(.92)}to{opacity:1;transform:none}}
+.notif-card.notif-info{border-left:3px solid var(--blue);}
+.notif-card.notif-success{border-left:3px solid var(--green);}
+.notif-card.notif-warning{border-left:3px solid var(--yellow);}
+.notif-card.notif-announcement{border-left:3px solid var(--purple);}
+.notif-card.notif-reply{border-left:3px solid var(--cyan);}
+.notif-ico{font-size:22px;flex-shrink:0;margin-top:1px;}
+.notif-body{flex:1;min-width:0;}
+.notif-title{font-size:13px;font-weight:800;margin-bottom:2px;}
+.notif-msg{font-size:12px;color:var(--text2);line-height:1.5;}
+.notif-from{font-size:10px;color:var(--text3);margin-top:4px;font-weight:600;}
+.notif-dismiss{font-size:15px;color:var(--text3);background:none;border:none;cursor:pointer;flex-shrink:0;padding:0 2px;}
+
 </style>
 </head>
 <body>
@@ -586,7 +602,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
     <span>·</span>
     <a onclick="openLegal('pp')">Privacy Policy</a>
     <span>·</span>
-    <a href="mailto:subhranil.in@outlook.com">Contact</a>
+    <a href="/cdn-cgi/l/email-protection#344741565c46555a5d581a5d5a745b4140585b5b5f1a575b59">Contact</a>
     <div style="width:100%;margin-top:6px;font-size:10px;color:var(--text3);font-weight:600">© 2026 Classify Technologies LLC · v1.7.0 BETA</div>
   </div>
 </div>
@@ -619,7 +635,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
   <div class="legal-section"><h3>5. Data Sharing</h3><p>We do not sell, rent, or share your personal data with third parties, except as required by law or as necessary to operate the leaderboard feature.</p></div>
   <div class="legal-section"><h3>6. Data Retention</h3><p>Your data remains on your device until you clear your browser storage. Leaderboard entries may be retained for up to 12 months.</p></div>
   <div class="legal-section"><h3>7. Children's Privacy</h3><p>Fluentex is designed for users of all ages. We do not knowingly collect personal information from children under 13. Parents may clear their child's data by clearing browser storage.</p></div>
-  <div class="legal-section"><h3>8. Contact</h3><p>For privacy-related concerns, contact us at: <strong style="color:var(--blue)"><a href="mailto:subhranil.in@outlook.com" style="color:var(--blue);text-decoration:none">subhranil.in@outlook.com</a></strong></p></div>
+  <div class="legal-section"><h3>8. Contact</h3><p>For privacy-related concerns, contact us at: <strong style="color:var(--blue)"><a href="/cdn-cgi/l/email-protection#136066717b61727d7a7f3d7a7d537c66677f7c7c783d707c7e" style="color:var(--blue);text-decoration:none"><span class="__cf_email__" data-cfemail="7c0f091e140e1d1215105215123c13090810131317521f1311">[email&#160;protected]</span></a></strong></p></div>
   <button class="btn-go" onclick="closeModal('pp-modal')" style="width:100%;margin-top:8px">Got it ✓</button>
 </div></div>
 
@@ -722,7 +738,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
       <span style="color:var(--bdr2)">·</span>
-      <a href="mailto:subhranil.in@outlook.com" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+      <a href="/cdn-cgi/l/email-protection#81f2f4e3e9f3e0efe8edafe8efc1eef4f5edeeeeeaafe2eeec" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('suggest')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--text3)'">💡 Suggest a Feature</a>
       <span style="color:var(--bdr2)">·</span>
@@ -744,7 +760,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
       <span style="color:var(--bdr2)">·</span>
-      <a href="mailto:subhranil.in@outlook.com" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+      <a href="/cdn-cgi/l/email-protection#f78482959f8596999e9bd99e99b79882839b98989cd994989a" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('suggest')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--text3)'">💡 Suggest a Feature</a>
       <span style="color:var(--bdr2)">·</span>
@@ -766,7 +782,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
       <span style="color:var(--bdr2)">·</span>
-      <a href="mailto:subhranil.in@outlook.com" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+      <a href="/cdn-cgi/l/email-protection#364543545e4457585f5a185f58765943425a59595d1855595b" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('suggest')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--text3)'">💡 Suggest a Feature</a>
       <span style="color:var(--bdr2)">·</span>
@@ -802,7 +818,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
       <span style="color:var(--bdr2)">·</span>
-      <a href="mailto:subhranil.in@outlook.com" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+      <a href="/cdn-cgi/l/email-protection#f98a8c9b918b98979095d79097b9968c8d95969692d79a9694" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('suggest')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--text3)'">💡 Suggest a Feature</a>
       <span style="color:var(--bdr2)">·</span>
@@ -831,7 +847,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
       <span style="color:var(--bdr2)">·</span>
-      <a href="mailto:subhranil.in@outlook.com" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+      <a href="/cdn-cgi/l/email-protection#9eedebfcf6ecfff0f7f2b0f7f0def1ebeaf2f1f1f5b0fdf1f3" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('suggest')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--text3)'">💡 Suggest a Feature</a>
       <span style="color:var(--bdr2)">·</span>
@@ -862,7 +878,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
       <span style="color:var(--bdr2)">·</span>
-      <a href="mailto:subhranil.in@outlook.com" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+      <a href="/cdn-cgi/l/email-protection#e69593848e9487888f8ac88f88a68993928a89898dc885898b" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('suggest')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--text3)'">💡 Suggest a Feature</a>
       <span style="color:var(--bdr2)">·</span>
@@ -884,7 +900,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openLegal('pp')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Privacy Policy</a>
       <span style="color:var(--bdr2)">·</span>
-      <a href="mailto:subhranil.in@outlook.com" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
+      <a href="/cdn-cgi/l/email-protection#8cfff9eee4feede2e5e0a2e5e2cce3f9f8e0e3e3e7a2efe3e1" style="font-size:11px;color:var(--text3);font-weight:700;text-decoration:none" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text3)'">Contact</a>
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('suggest')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--text3)'">💡 Suggest a Feature</a>
       <span style="color:var(--bdr2)">·</span>
@@ -894,7 +910,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
   </footer>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 'use strict';
 const RANKS=['Beginner','Learner','Explorer','Scholar','Master','Legend','Grandmaster'];
 const FLAGS=[
@@ -1819,5 +1835,60 @@ async function submitBugReport(){
   </div>
 </div></div>
 
+<div id="notif-tray"></div>
+<script>
+/* IN-APP PUSH NOTIFICATIONS */
+var FX_NOTIF_PFX='fx_notif_v1:';
+var FX_SEEN_KEY='fx_notif_seen_v1';
+var _notifSeenIds=new Set();
+var _notifTimer=null;
+function _loadSeenIds(){try{var s=localStorage.getItem(FX_SEEN_KEY);if(s)_notifSeenIds=new Set(JSON.parse(s));}catch(e){}}
+function _markSeen(id){_notifSeenIds.add(id);try{localStorage.setItem(FX_SEEN_KEY,JSON.stringify([..._notifSeenIds].slice(-200)));}catch(e){}}
+async function checkNotifications(){
+  if(typeof window.storage==='undefined')return;
+  if(!U||!U.name)return;
+  _loadSeenIds();
+  var slug=U.name.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,24);
+  var keysToCheck=[];
+  try{
+    var bList=await window.storage.list(FX_NOTIF_PFX+'_broadcast_',true);
+    if(bList&&bList.keys)keysToCheck.push(...bList.keys);
+    var uList=await window.storage.list(FX_NOTIF_PFX+slug+'_',true);
+    if(uList&&uList.keys)keysToCheck.push(...uList.keys);
+  }catch(e){return;}
+  for(var i=0;i<keysToCheck.length;i++){
+    try{
+      var r=await window.storage.get(keysToCheck[i],true);
+      if(!r||!r.value)continue;
+      var notif=JSON.parse(r.value);
+      if(!notif||!notif.id)continue;
+      if(_notifSeenIds.has(notif.id))continue;
+      if(notif.ts&&(Date.now()-notif.ts)>7*24*3600*1000){_markSeen(notif.id);continue;}
+      _markSeen(notif.id);
+      showInAppNotif(notif);
+    }catch(e){}
+  }
+}
+var NOTIF_ICONS={info:'ℹ️',success:'✅',warning:'⚠️',announcement:'📣',reply:'💬'};
+function escHtml(s){return String(s||'').replace(/[&<>'"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
+function showInAppNotif(notif){
+  var tray=document.getElementById('notif-tray');
+  if(!tray)return;
+  var card=document.createElement('div');
+  card.className='notif-card notif-'+(notif.type||'info');
+  card.innerHTML='<span class="notif-ico">'+(NOTIF_ICONS[notif.type]||'🔔')+'</span><div class="notif-body"><div class="notif-title">'+escHtml(notif.title||'Notification')+'</div><div class="notif-msg">'+escHtml(notif.message||'')+'</div><div class="notif-from">From Fluentex Admin · '+new Date(notif.ts||Date.now()).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+'</div></div><button class="notif-dismiss" onclick="this.closest(\'.notif-card\').remove()" title="Dismiss">✕</button>';
+  card.onclick=function(e){if(!e.target.classList.contains('notif-dismiss'))card.remove();};
+  tray.appendChild(card);
+  setTimeout(function(){if(card.parentNode){card.style.transition='opacity .4s,transform .4s';card.style.opacity='0';card.style.transform='translateY(-12px) scale(.95)';setTimeout(function(){card.remove();},420);}},10000);
+}
+function startNotifPolling(){
+  checkNotifications();
+  if(_notifTimer)clearInterval(_notifTimer);
+  _notifTimer=setInterval(checkNotifications,45000);
+}
+window.addEventListener('DOMContentLoaded',function(){
+  setTimeout(function(){if(U&&U.name)startNotifPolling();},2500);
+});
+</script>
 </body>
 </html>
