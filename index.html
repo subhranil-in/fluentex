@@ -530,7 +530,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
 }
 
 #notif-tray{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:8000;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;max-width:94vw;width:440px;}
-.notif-card{width:100%;pointer-events:all;display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-radius:14px;background:var(--card);border:1px solid var(--bdr2);box-shadow:0 8px 32px rgba(0,0,0,.45);animation:notifIn .4s cubic-bezier(.34,1.56,.64,1);cursor:pointer;}
+.notif-card{width:100%;pointer-events:all;display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-radius:14px;background:var(--bg2);border:1px solid var(--bdr2);box-shadow:0 8px 32px rgba(0,0,0,.55);animation:notifIn .4s cubic-bezier(.34,1.56,.64,1);cursor:pointer;}
 @keyframes notifIn{from{opacity:0;transform:translateY(-22px) scale(.92)}to{opacity:1;transform:none}}
 .notif-card.notif-info{border-left:3px solid var(--blue);}
 .notif-card.notif-success{border-left:3px solid var(--green);}
@@ -543,6 +543,275 @@ html { font-size: clamp(13px, 2vw, 16px); }
 .notif-msg{font-size:12px;color:var(--text2);line-height:1.5;}
 .notif-from{font-size:10px;color:var(--text3);margin-top:4px;font-weight:600;}
 .notif-dismiss{font-size:15px;color:var(--text3);background:none;border:none;cursor:pointer;flex-shrink:0;padding:0 2px;}
+
+
+/* ══ NOTIFICATION BELL + PANEL ════════════════════════════════════════ */
+.notif-bell-wrap{position:relative;flex-shrink:0}
+.notif-bell-btn{
+  width:38px;height:38px;border-radius:12px;
+  background:var(--surf);border:1.5px solid var(--bdr);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:18px;transition:border-color .2s,background .2s,transform .2s var(--spring);
+  flex-shrink:0;overflow:visible;
+}
+.notif-bell-btn:hover{border-color:var(--blue);background:rgba(0,195,255,.08);transform:translateY(-2px)}
+.notif-bell-btn.has-unread{border-color:rgba(255,70,104,.5);animation:bellShake 2.8s ease-in-out infinite}
+@keyframes bellShake{0%,80%,100%{transform:rotate(0)}84%{transform:rotate(-12deg)}88%{transform:rotate(12deg)}92%{transform:rotate(-8deg)}96%{transform:rotate(6deg)}}
+.notif-badge{
+  position:absolute;top:-6px;right:-6px;
+  min-width:18px;height:18px;border-radius:100px;
+  background:var(--red);color:#fff;
+  font-size:10px;font-weight:900;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 4px;border:2.5px solid var(--bg);
+  box-sizing:border-box;
+  z-index:10;pointer-events:none;
+  animation:badgePop .35s var(--spring);
+}
+@keyframes badgePop{from{transform:scale(0)}to{transform:scale(1)}}
+
+/* Panel */
+.notif-panel{
+  position:absolute;top:calc(100% + 10px);right:0;
+  width:340px;max-height:480px;
+  background:var(--bg2);border:1.5px solid var(--bdr2);
+  border-radius:18px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 0 1px rgba(0,195,255,.08);
+  display:none;flex-direction:column;
+  z-index:600;animation:panelIn .3s var(--spring);
+}
+.notif-panel.open{display:flex}
+@keyframes panelIn{from{opacity:0;transform:translateY(-10px) scale(.96)}to{opacity:1;transform:none}}
+
+.np-head{
+  display:flex;align-items:center;gap:8px;
+  padding:14px 16px 12px;border-bottom:1px solid var(--bdr);
+  background:var(--bg2);
+  flex-shrink:0;
+}
+.np-title{font-size:14px;font-weight:800;flex:1}
+.np-unread-pill{
+  font-size:9px;font-weight:800;letter-spacing:.5px;
+  padding:2px 8px;border-radius:100px;
+  background:rgba(255,70,104,.15);color:var(--red);
+  border:1px solid rgba(255,70,104,.3);
+}
+.np-clear-btn{
+  font-size:11px;font-weight:700;color:var(--text3);
+  background:none;border:none;cursor:pointer;padding:3px 6px;
+  border-radius:6px;transition:color .18s,background .18s;
+}
+.np-clear-btn:hover{color:var(--red);background:rgba(255,70,104,.1)}
+
+.np-tabs{display:flex;gap:2px;padding:8px 10px 0;flex-shrink:0}
+.np-tab{
+  flex:1;padding:6px 0;border:none;border-radius:8px 8px 0 0;
+  background:transparent;color:var(--text3);
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;
+  cursor:pointer;transition:all .18s;border-bottom:2px solid transparent;
+}
+.np-tab.active{color:var(--blue);border-bottom-color:var(--blue);background:rgba(0,195,255,.05)}
+
+.np-body{overflow-y:auto;flex:1;padding:8px 0;background:var(--bg3);}
+.np-body::-webkit-scrollbar{width:3px}
+.np-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.np-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 14px;cursor:pointer;
+  background:var(--bg3);
+  transition:background .15s;position:relative;
+  border-bottom:1px solid var(--bdr);
+}
+.np-item:last-child{border-bottom:none}
+.np-item:hover{background:var(--bg4)}
+.np-item.unread{background:rgba(0,195,255,.09)}
+.np-item.unread::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:3px;border-radius:0 3px 3px 0;background:var(--blue);
+}
+.np-item-ico{
+  width:34px;height:34px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;margin-top:1px;
+}
+.np-item-ico.info        {background:rgba(0,195,255,.12)}
+.np-item-ico.success     {background:rgba(5,242,133,.12)}
+.np-item-ico.warning     {background:rgba(255,212,38,.12)}
+.np-item-ico.announcement{background:rgba(176,106,255,.12)}
+.np-item-ico.reply       {background:rgba(0,238,255,.12)}
+.np-item-body{flex:1;min-width:0}
+.np-item-title{font-size:12px;font-weight:800;line-height:1.3;margin-bottom:2px}
+.np-item-msg{font-size:11px;color:var(--text2);line-height:1.45;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.np-item-time{font-size:10px;color:var(--text3);margin-top:4px;font-weight:600}
+.np-item-del{
+  font-size:13px;color:var(--text3);background:none;border:none;
+  cursor:pointer;padding:2px 4px;border-radius:5px;opacity:0;
+  transition:opacity .15s,color .15s,background .15s;flex-shrink:0;align-self:flex-start;
+}
+.np-item:hover .np-item-del{opacity:1}
+.np-item-del:hover{color:var(--red);background:rgba(255,70,104,.12)}
+
+.np-empty{
+  text-align:center;padding:40px 20px;
+  font-size:13px;color:var(--text3);font-weight:600;
+}
+.np-empty-ico{font-size:36px;display:block;margin-bottom:10px;opacity:.4}
+
+.np-footer{
+  padding:10px 14px;border-top:1px solid var(--bdr);
+  background:var(--bg2);
+  flex-shrink:0;
+}
+.np-mark-all{
+  width:100%;padding:8px;border-radius:9px;border:none;
+  background:rgba(0,195,255,.1);color:var(--blue);
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;
+  cursor:pointer;transition:background .2s,transform .2s var(--spring);
+}
+.np-mark-all:hover{background:rgba(0,195,255,.18);transform:translateY(-1px)}
+
+/* Responsive: full-width panel on small screens */
+@media(max-width:380px){
+  .notif-panel{width:calc(100vw - 24px);right:-60px}
+}
+[data-theme="light"] .notif-panel{background:var(--bg2);box-shadow:0 20px 60px rgba(30,60,140,.18),0 0 0 1px rgba(0,120,200,.1);}
+[data-theme="light"] .np-head,[data-theme="light"] .np-footer{background:var(--bg2);}
+[data-theme="light"] .np-body,[data-theme="light"] .np-item{background:var(--bg3);}
+[data-theme="light"] .np-item.unread{background:rgba(0,120,200,.07);}
+[data-theme="light"] .np-item:hover{background:var(--bg4);}
+[data-theme="light"] .notif-card{background:var(--bg2);box-shadow:0 8px 32px rgba(30,60,140,.18);}
+
+
+/* ══ COMMUNITY CHAT ══ */
+/* ══ COMMUNITY CHAT SCREEN ═══════════════════════════════════════════ */
+#community{display:none;flex-direction:column;position:relative;z-index:2;height:100vh;max-height:100vh;overflow:hidden}
+#community.active{display:flex}
+
+/* Header */
+.chat-hdr{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--nav);backdrop-filter:blur(28px) saturate(180%);border-bottom:1.5px solid var(--bdr);flex-shrink:0;z-index:10}
+.chat-hdr-info{flex:1;min-width:0}
+.chat-hdr-title{font-size:15px;font-weight:800;display:flex;align-items:center;gap:7px}
+.chat-online-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 6px var(--gg);animation:pulse2 2s ease-in-out infinite}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:.5}}
+.chat-hdr-sub{font-size:10px;color:var(--text3);font-weight:600;margin-top:1px}
+
+/* Tab bar */
+.chat-tabs{display:flex;background:var(--bg2);border-bottom:1.5px solid var(--bdr);flex-shrink:0}
+.chat-tab{flex:1;padding:9px 0;border:none;background:transparent;color:var(--text3);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border-bottom:2.5px solid transparent;transition:color .18s,border-color .18s}
+.chat-tab.active{color:var(--blue);border-bottom-color:var(--blue);background:rgba(0,195,255,.04)}
+
+/* Chat body */
+.chat-body{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:2px;scroll-behavior:smooth}
+.chat-body::-webkit-scrollbar{width:4px}
+.chat-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+/* Date divider */
+.chat-date-div{text-align:center;font-size:10px;font-weight:700;color:var(--text3);padding:8px 0;display:flex;align-items:center;gap:8px}
+.chat-date-div::before,.chat-date-div::after{content:'';flex:1;height:1px;background:var(--bdr)}
+
+/* Message row */
+.msg-row{display:flex;gap:9px;padding:4px 0;animation:msgIn .28s var(--smooth) both;position:relative}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg-row.mine .msg-bubble{background:rgba(0,195,255,.08);border-color:rgba(0,195,255,.22)}
+.msg-row.mod-msg .msg-bubble{background:rgba(255,70,104,.06);border-color:rgba(255,70,104,.25)}
+.msg-row.deleted{opacity:.45;pointer-events:none}
+
+/* Avatar */
+.msg-av{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0;cursor:pointer;transition:transform .2s var(--spring);margin-top:2px}
+.msg-av:hover{transform:scale(1.12)}
+
+/* Bubble */
+.msg-bubble{flex:1;min-width:0;background:var(--surf);border:1.5px solid var(--bdr);border-radius:4px 14px 14px 14px;padding:8px 11px;position:relative}
+.msg-row.mine .msg-bubble{border-radius:14px 4px 14px 14px}
+
+/* Bubble header */
+.msg-meta{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap}
+.msg-author{font-size:12px;font-weight:800;cursor:pointer;transition:color .15s}
+.msg-author:hover{color:var(--blue)}
+.msg-flag{font-size:12px}
+.msg-badge{font-size:8px;font-weight:800;padding:1px 6px;border-radius:100px;letter-spacing:.4px}
+.msg-badge.mod{background:rgba(255,70,104,.15);color:var(--red);border:1px solid rgba(255,70,104,.3)}
+.msg-badge.bot{background:rgba(176,106,255,.15);color:var(--purple);border:1px solid rgba(176,106,255,.3)}
+.msg-badge.top{background:rgba(255,212,38,.15);color:var(--yellow);border:1px solid rgba(255,212,38,.3)}
+.msg-time{font-size:9px;color:var(--text3);font-weight:600;margin-left:auto}
+
+/* Reply quote */
+.msg-reply-quote{background:var(--bg3);border-left:3px solid var(--blue);border-radius:0 7px 7px 0;padding:4px 8px;margin-bottom:6px;font-size:10px;color:var(--text2);font-weight:600;cursor:pointer}
+.msg-reply-quote .rq-author{color:var(--blue);font-weight:800;margin-bottom:1px}
+.msg-reply-quote .rq-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Message text */
+.msg-text{font-size:13px;line-height:1.55;color:var(--text);word-break:break-word}
+.msg-row.deleted .msg-text{color:var(--text3);font-style:italic}
+
+/* Actions */
+.msg-actions{display:flex;align-items:center;gap:4px;margin-top:6px}
+.msg-act-btn{display:flex;align-items:center;gap:3px;padding:3px 7px;border-radius:100px;border:1px solid var(--bdr);background:transparent;font-family:'Nunito',sans-serif;font-size:10px;font-weight:700;color:var(--text3);cursor:pointer;transition:all .18s}
+.msg-act-btn:hover{background:var(--surf2);border-color:var(--bdr2);color:var(--text)}
+.msg-act-btn.liked{background:rgba(5,242,133,.1);border-color:rgba(5,242,133,.3);color:var(--green)}
+.msg-act-btn.disliked{background:rgba(255,70,104,.1);border-color:rgba(255,70,104,.3);color:var(--red)}
+.msg-act-btn.reply-btn:hover{background:rgba(0,195,255,.08);border-color:rgba(0,195,255,.3);color:var(--blue)}
+
+/* Input area */
+.chat-input-wrap{flex-shrink:0;background:var(--bg2);border-top:1.5px solid var(--bdr);padding:10px 14px}
+.chat-reply-preview{display:none;background:rgba(0,195,255,.07);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:5px 10px;margin-bottom:8px;font-size:11px;font-weight:600;color:var(--text2);align-items:center;gap:8px}
+.chat-reply-preview.show{display:flex}
+.crp-name{color:var(--blue);font-weight:800}
+.crp-text{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crp-cancel{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;line-height:1;transition:color .15s}
+.crp-cancel:hover{color:var(--red)}
+.chat-input-row{display:flex;gap:8px;align-items:flex-end}
+.chat-input{flex:1;background:var(--surf);border:1.5px solid var(--bdr);border-radius:14px;padding:9px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--text);resize:none;min-height:40px;max-height:100px;overflow-y:auto;transition:border-color .2s,box-shadow .2s;line-height:1.45}
+.chat-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,195,255,.1)}
+.chat-input::placeholder{color:var(--text3)}
+.chat-send-btn{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--purple));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:transform .2s var(--spring),box-shadow .2s;box-shadow:0 4px 14px rgba(0,195,255,.3)}
+.chat-send-btn:hover{transform:translateY(-2px) scale(1.06);box-shadow:0 8px 22px rgba(0,195,255,.4)}
+.chat-send-btn:active{transform:scale(.95)}
+.chat-input-hint{font-size:10px;color:var(--text3);font-weight:600;margin-top:5px;text-align:center}
+
+/* Online users panel */
+.users-panel{flex:1;overflow-y:auto;padding:12px 14px;display:none;flex-direction:column;gap:8px}
+.users-panel.active{display:flex}
+.users-panel::-webkit-scrollbar{width:4px}
+.users-panel::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.user-card{display:flex;align-items:center;gap:11px;padding:10px 13px;background:var(--surf);border:1.5px solid var(--bdr);border-radius:16px;cursor:pointer;transition:border-color .2s,transform .2s var(--spring)}
+.user-card:hover{border-color:var(--blue);transform:translateY(-2px)}
+.uc-av{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;flex-shrink:0}
+.uc-name{font-size:13px;font-weight:800;flex:1}
+.uc-sub{font-size:10px;color:var(--text3);font-weight:600;margin-top:1px}
+.uc-follow-btn{font-size:11px;font-weight:800;padding:4px 12px;border-radius:100px;border:1.5px solid;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .18s}
+.uc-follow-btn.follow{color:var(--blue);border-color:rgba(0,195,255,.4);background:rgba(0,195,255,.07)}
+.uc-follow-btn.follow:hover{background:rgba(0,195,255,.15)}
+.uc-follow-btn.following{color:var(--green);border-color:rgba(5,242,133,.4);background:rgba(5,242,133,.07)}
+.uc-follow-btn.following:hover{background:rgba(255,70,104,.1);color:var(--red);border-color:rgba(255,70,104,.3)}
+
+/* Profile modal */
+.profile-modal{max-width:340px;text-align:left;padding:28px}
+.pm-head{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.pm-av{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff;flex-shrink:0}
+.pm-name{font-size:17px;font-weight:800;margin-bottom:2px}
+.pm-flag-row{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2)}
+.pm-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.pm-stat{background:var(--bg3);border-radius:12px;padding:10px;text-align:center}
+.pm-stat-val{font-size:16px;font-weight:900;display:block;margin-bottom:2px}
+.pm-stat-lbl{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.pm-follow-btn{width:100%;padding:10px;border-radius:12px;border:none;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s var(--spring)}
+.pm-follow-btn.follow{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;box-shadow:0 6px 18px rgba(0,195,255,.3)}
+.pm-follow-btn.follow:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,195,255,.4)}
+.pm-follow-btn.following{background:var(--surf2);color:var(--red);border:1.5px solid rgba(255,70,104,.3)}
+
+/* Mod warning system msg */
+.mod-sys-msg{text-align:center;padding:5px 0;margin:3px 0}
+.mod-sys-inner{display:inline-flex;align-items:center;gap:5px;background:rgba(255,70,104,.1);border:1px solid rgba(255,70,104,.25);border-radius:100px;padding:3px 12px;font-size:10px;font-weight:700;color:var(--red)}
+
+/* Chat empty state */
+.chat-empty{text-align:center;padding:40px 20px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.chat-empty-ico{font-size:48px;margin-bottom:12px;opacity:.5}
+
+/* Responsive */
+@media(max-width:480px){.msg-bubble{border-radius:4px 12px 12px 12px}.msg-av{width:30px;height:30px;font-size:12px}.msg-text{font-size:12px}}
 
 </style>
 </head>
@@ -593,6 +862,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <div class="sb-link" onclick="closeSidebar();showScreen('home')"><div class="sb-link-ico">🏠</div>Home</div>
       <div class="sb-link" onclick="closeSidebar();showScreen('level-screen')"><div class="sb-link-ico">📚</div>Start Learning</div>
       <div class="sb-link" onclick="closeSidebar();showScreen('badges')"><div class="sb-link-ico">🏅</div>My Badges</div>
+      <div class="sb-link" onclick="closeSidebar();openCommunity()"><div class="sb-link-ico">💬</div>Community</div>
     </div>
   </div>
 
@@ -603,7 +873,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
     <a onclick="openLegal('pp')">Privacy Policy</a>
     <span>·</span>
     <a href="/cdn-cgi/l/email-protection#344741565c46555a5d581a5d5a745b4140585b5b5f1a575b59">Contact</a>
-    <div style="width:100%;margin-top:6px;font-size:10px;color:var(--text3);font-weight:600">© 2026 Classify Technologies LLC · v1.7.0 BETA</div>
+    <div style="width:100%;margin-top:6px;font-size:10px;color:var(--text3);font-weight:600">© 2026 Classify Technologies LLC · v1.8.0 BETA</div>
   </div>
 </div>
 
@@ -694,6 +964,25 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <div class="nstat exp">⚡ <span id="n-xp">0</span></div>
       <div class="nstat hp">❤️ <span id="n-hp">5</span></div>
       <button class="badge-btn" onclick="showScreen('badges')">🏅 <span id="badge-cnt">0</span><span class="bdot" id="bdot"></span></button>
+      <div class="notif-bell-wrap" id="notif-bell-wrap">
+        <button class="notif-bell-btn" id="notif-bell-btn" onclick="toggleNotifPanel()" aria-label="Notifications">🔔</button>
+        <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+        <div class="notif-panel" id="notif-panel">
+          <div class="np-head">
+            <span class="np-title">🔔 Notifications</span>
+            <span class="np-unread-pill" id="np-unread-pill" style="display:none">0 new</span>
+            <button class="np-clear-btn" onclick="clearAllNotifs()" title="Clear all">🗑 Clear all</button>
+          </div>
+          <div class="np-tabs">
+            <button class="np-tab active" id="np-tab-all"    onclick="switchNotifTab('all',this)">All</button>
+            <button class="np-tab"        id="np-tab-unread" onclick="switchNotifTab('unread',this)">Unread</button>
+          </div>
+          <div class="np-body" id="np-body"></div>
+          <div class="np-footer">
+            <button class="np-mark-all" onclick="markAllNotifsRead()">✅ Mark all as read</button>
+          </div>
+        </div>
+      </div>
       <button class="hbtn" onclick="openSidebar()" aria-label="Menu"><div class="hbar"></div><div class="hbar"></div><div class="hbar"></div></button>
       </div>
   </nav>
@@ -707,6 +996,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <h2>Level up your English, <span id="hero-nm">Champion</span>! 🚀</h2>
       <p>Select your CEFR level → Study AI flashcards → Ace the quiz. Questions adapt to your strengths &amp; weaknesses!</p>
       <button class="cta-btn" onclick="showScreen('level-screen')">⚡ Start Learning</button>
+      <button class="cta-btn" onclick="openCommunity()" style="margin-top:10px;background:linear-gradient(135deg,var(--purple),var(--blue))">💬 Community Chat</button>
     </div>
     <div class="wod"><div style="font-size:28px">📖</div><div style="flex:1">
       <div class="wod-badge">✨ Word of the Day</div>
@@ -744,9 +1034,69 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('bug')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">🐛 Report Bug</a>
     </div>
-    <span class="ver-chip">🔖 v1.7.0 BETA</span>
+    <span class="ver-chip">🔖 v1.8.0 BETA</span>
   </footer>
 </div>
+
+
+<!-- ══ COMMUNITY CHAT SCREEN ══════════════════════════════════════ -->
+<div id="community" class="screen">
+  <div class="chat-hdr">
+    <button class="back-btn" onclick="showScreen('home')">← Back</button>
+    <div class="chat-hdr-info">
+      <div class="chat-hdr-title"><span class="chat-online-dot"></span>💬 Community Chat</div>
+      <div class="chat-hdr-sub" id="chat-hdr-sub">Loading...</div>
+    </div>
+    <button class="hbtn" onclick="openSidebar()" aria-label="Menu"><div class="hbar"></div><div class="hbar"></div><div class="hbar"></div></button>
+  </div>
+
+  <div class="chat-tabs">
+    <button class="chat-tab active" id="ctab-chat"  onclick="switchChatTab('chat')">💬 Global Chat</button>
+    <button class="chat-tab"        id="ctab-users" onclick="switchChatTab('users')">👥 Members</button>
+  </div>
+
+  <!-- Chat panel -->
+  <div id="chat-messages" class="chat-body"></div>
+
+  <!-- Users panel -->
+  <div id="users-panel" class="users-panel"></div>
+
+  <!-- Input -->
+  <div class="chat-input-wrap" id="chat-input-wrap">
+    <div class="chat-reply-preview" id="chat-reply-preview">
+      <div>↩ Replying to <span class="crp-name" id="crp-name"></span>: <span class="crp-text" id="crp-text"></span></div>
+      <button class="crp-cancel" onclick="clearReply()" title="Cancel reply">✕</button>
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chat-input" placeholder="Say something to the community... 🌍" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+      <button class="chat-send-btn" onclick="sendChatMsg()" title="Send">✈️</button>
+    </div>
+    <div class="chat-input-hint" id="chat-login-hint"></div>
+  </div>
+</div>
+
+<!-- Profile modal -->
+<div class="modal-bg" id="profile-modal">
+  <div class="modal profile-modal">
+    <div class="pm-head">
+      <div class="pm-av" id="pm-av"></div>
+      <div>
+        <div class="pm-name" id="pm-name"></div>
+        <div class="pm-flag-row"><span id="pm-flag"></span> <span id="pm-country"></span> <span id="pm-badge-row"></span></div>
+      </div>
+    </div>
+    <div class="pm-stats">
+      <div class="pm-stat"><span class="pm-stat-val" id="pm-xp">0</span><span class="pm-stat-lbl">⚡ XP</span></div>
+      <div class="pm-stat"><span class="pm-stat-val" id="pm-streak">0</span><span class="pm-stat-lbl">🔥 Streak</span></div>
+      <div class="pm-stat"><span class="pm-stat-val" id="pm-msgs">0</span><span class="pm-stat-lbl">💬 Msgs</span></div>
+    </div>
+    <button class="pm-follow-btn" id="pm-follow-btn" onclick="toggleFollowFromModal()"></button>
+    <button onclick="closeModal('profile-modal')" style="width:100%;margin-top:8px;padding:8px;border-radius:10px;border:1.5px solid var(--bdr2);background:transparent;color:var(--text3);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer">Close</button>
+  </div>
+</div>
+
 
 <!-- LEVEL SELECT -->
 <div id="level-screen" class="screen">
@@ -766,7 +1116,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('bug')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">🐛 Report Bug</a>
     </div>
-    <span class="ver-chip">🔖 v1.7.0 BETA</span>
+    <span class="ver-chip">🔖 v1.8.0 BETA</span>
   </footer>
 </div>
 
@@ -788,7 +1138,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('bug')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">🐛 Report Bug</a>
     </div>
-    <span class="ver-chip">🔖 v1.7.0 BETA</span>
+    <span class="ver-chip">🔖 v1.8.0 BETA</span>
   </footer>
 </div>
 
@@ -824,7 +1174,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('bug')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">🐛 Report Bug</a>
     </div>
-    <span class="ver-chip">🔖 v1.7.0 BETA</span>
+    <span class="ver-chip">🔖 v1.8.0 BETA</span>
   </footer>
 </div>
 
@@ -853,7 +1203,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('bug')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">🐛 Report Bug</a>
     </div>
-    <span class="ver-chip">🔖 v1.7.0 BETA</span>
+    <span class="ver-chip">🔖 v1.8.0 BETA</span>
   </footer>
 </div>
 
@@ -884,7 +1234,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('bug')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">🐛 Report Bug</a>
     </div>
-    <span class="ver-chip">🔖 v1.7.0 BETA</span>
+    <span class="ver-chip">🔖 v1.8.0 BETA</span>
   </footer>
 </div>
 
@@ -906,7 +1256,7 @@ html { font-size: clamp(13px, 2vw, 16px); }
       <span style="color:var(--bdr2)">·</span>
       <a onclick="openFeedbackModal('bug')" style="font-size:11px;color:var(--text3);font-weight:700;cursor:pointer;text-decoration:none" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">🐛 Report Bug</a>
     </div>
-    <span class="ver-chip">🔖 v1.7.0 BETA</span>
+    <span class="ver-chip">🔖 v1.8.0 BETA</span>
   </footer>
 </div>
 
@@ -1366,6 +1716,8 @@ async function fetchGlobalLB(){
       }
     }catch(e){ console.warn('Global LB fetch failed, using local:', e); }
   }
+  // Always merge bot entries so they appear even without real users
+  all = _botsMergeIntoLB(all);
   return all;
 }
 
@@ -1435,6 +1787,7 @@ function init(){
     if(loadProfileWithMigration()&&U.name){
       checkStreak();sp();
       showScreen('home');updateUI();loadWoD();renderPerf();renderBadges();renderLB();startLBPoll();
+      startBotChat();
       pushLBEntry();
       if(U.streak>0){
         setTimeout(()=>{
@@ -1470,6 +1823,7 @@ async function saveName(){
   if(!raw){const el=document.getElementById('ninp');el.classList.add('err');setTimeout(()=>el.classList.remove('err'),1400);return;}
   U={name:raw,flag:selFlag.f,xp:0,streak:0,hearts:5,maxHearts:5,lastDay:todayIST(),quizzes:0,perfectQuizzes:0,fastQuizzes:0,badges:[],catsPlayed:{},perf:{vocabulary:{c:0,w:0},grammar:{c:0,w:0},idioms:{c:0,w:0},spelling:{c:0,w:0},conversation:{c:0,w:0},reading:{c:0,w:0}}};
   sp();closeModal('name-modal');updateUI();renderPerf();renderBadges();renderLB();startLBPoll();pushLBEntry();
+  startBotChat();
 }
 
 /* ─── UI UPDATE ──────────────────────────── */
@@ -1533,7 +1887,176 @@ async function renderLB(){
   if(myRank>0)html+=`<div style="text-align:center;padding:7px 0 2px;font-size:10px;color:var(--text3);font-weight:600;border-top:1px solid var(--bdr);margin-top:5px">Your all-time rank: #${myRank}</div>`;
   wrap.innerHTML=html;
 }
-function startLBPoll(){if(lbTimer)clearInterval(lbTimer);lbTimer=setInterval(renderLB,30000);}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FLUENTEX BOT LEADERBOARD SYSTEM
+   Simulates real global learners on the leaderboard.
+   Bots persist in localStorage, update scores organically over time.
+══════════════════════════════════════════════════════════════════════ */
+
+const FX_BOTS_KEY = 'fx_bots_v2';
+let _botTimer = null;
+
+// ── Bot roster — realistic international learners ──────────────────
+const BOT_ROSTER = [
+  // Name variations per bot: [primary, alt1, alt2] — occasionally rotates display
+  { names:['Arjun Sharma','ArjunS','Arjun S.'],          flag:'🇮🇳', baseXp:4820, baseStreak:34 },
+  { names:['Priya Nair','PriyaN','Priya N.'],             flag:'🇮🇳', baseXp:3910, baseStreak:28 },
+  { names:['Wei Zhang','WeiZhang','W. Zhang'],            flag:'🇨🇳', baseXp:5340, baseStreak:41 },
+  { names:['Yuki Tanaka','YukiT','Yuki T.'],              flag:'🇯🇵', baseXp:2870, baseStreak:19 },
+  { names:['Carlos Mendez','CarlosM','C. Mendez'],        flag:'🇲🇽', baseXp:1960, baseStreak:14 },
+  { names:['Emma Wilson','EmmaW','E. Wilson'],            flag:'🇬🇧', baseXp:6710, baseStreak:52 },
+  { names:['Ahmed Hassan','AhmedH','A. Hassan'],          flag:'🇪🇬', baseXp:2240, baseStreak:17 },
+  { names:['Sofia Chen','SofiaC','Sofia C.'],             flag:'🇹🇼', baseXp:3580, baseStreak:26 },
+  { names:['Lucas Müller','LucasM','L. Müller'],          flag:'🇩🇪', baseXp:1490, baseStreak:10 },
+  { names:['Fatima Al-Rashid','FatimaAR','F. Al-Rashid'], flag:'🇦🇪', baseXp:4170, baseStreak:31 },
+  { names:['Rahul Gupta','RahulG','Rahul G.'],            flag:'🇮🇳', baseXp:7250, baseStreak:58 },
+  { names:['Yuna Kim','YunaK','Yuna K.'],                 flag:'🇰🇷', baseXp:2650, baseStreak:21 },
+  { names:['Isabella Santos','IsabellaS','I. Santos'],    flag:'🇧🇷', baseXp:3280, baseStreak:23 },
+  { names:['David Okafor','DavidO','D. Okafor'],          flag:'🇳🇬', baseXp:1820, baseStreak:13 },
+  { names:['Nguyen Van Minh','NguyenVM','V. Minh'],       flag:'🇻🇳', baseXp:5090, baseStreak:38 },
+  { names:['Maria Santos','MariaS','M. Santos'],          flag:'🇵🇭', baseXp:2130, baseStreak:16 },
+  { names:['Omar Farouq','OmarF','O. Farouq'],            flag:'🇮🇩', baseXp:4430, baseStreak:33 },
+  { names:['Amara Diallo','AmaraD','A. Diallo'],          flag:'🇸🇳', baseXp:1240, baseStreak: 8 },
+  { names:['Li Wei','LiWei','L. Wei'],                    flag:'🇨🇳', baseXp:6120, baseStreak:47 },
+  { names:['Siddharth Rao','SiddharthR','S. Rao'],        flag:'🇮🇳', baseXp:3770, baseStreak:29 },
+];
+
+// ── Load/save bots from localStorage ──────────────────────────────
+function _botsLoad(){
+  try{ return JSON.parse(localStorage.getItem(FX_BOTS_KEY)||'[]'); }catch(e){ return []; }
+}
+function _botsSave(bots){
+  try{ localStorage.setItem(FX_BOTS_KEY, JSON.stringify(bots)); }catch(e){}
+}
+
+// ── Seed bots on first run (or if missing) ─────────────────────────
+function _botsInit(){
+  let bots = _botsLoad();
+
+  // Rebuild if roster doesn't match (e.g. first load or update)
+  if(bots.length < BOT_ROSTER.length){
+    const ws = getWeekStart();
+    const existing = {};
+    bots.forEach(b => { existing[b._botId] = b; });
+
+    bots = BOT_ROSTER.map((r, idx) => {
+      const prev = existing[idx];
+      // Spread out join timestamps over past 90 days
+      const joinedDaysAgo = 5 + Math.floor(Math.random() * 85);
+      const ts = Date.now() - joinedDaysAgo * 86400000;
+
+      // Give each bot a naturally varied weekXp (0–320)
+      const weekXp = prev ? (prev.weekXp||0) : Math.floor(Math.random() * 320);
+
+      // Use primary name by default, or keep existing chosen name
+      const nameIdx = prev ? (prev._nameIdx||0) : 0;
+
+      return {
+        _botId:     idx,
+        _nameIdx:   nameIdx,
+        name:       r.names[nameIdx],
+        flag:       r.flag,
+        xp:         prev ? prev.xp : r.baseXp + Math.floor(Math.random() * 400 - 200),
+        streak:     prev ? prev.streak : r.baseStreak + Math.floor(Math.random() * 6 - 3),
+        weekXp:     weekXp,
+        weekStart:  ws,
+        ts:         prev ? prev.ts : ts,
+        quizzes:    prev ? (prev.quizzes||0) : Math.floor((r.baseXp / 22) + Math.random() * 30),
+        _nextUpdate: Date.now() + _botNextDelay(),
+      };
+    });
+    _botsSave(bots);
+  }
+  return bots;
+}
+
+// ── Random delay between updates per bot (45s–4min) ────────────────
+function _botNextDelay(){
+  return 45000 + Math.floor(Math.random() * 195000); // 45s to 4min
+}
+
+// ── Merge bots into a LB array (dedupe by name) ───────────────────
+function _botsMergeIntoLB(lb){
+  const bots = _botsLoad();
+  const ws = getWeekStart();
+  bots.forEach(bot => {
+    // Reset weekXp if new week
+    if(bot.weekStart !== ws){ bot.weekXp = 0; bot.weekStart = ws; }
+    const name = bot.name;
+    const idx  = lb.findIndex(e => e.name === name || e._botId === bot._botId);
+    const entry = { name, flag:bot.flag, xp:bot.xp, streak:bot.streak,
+                    weekXp:bot.weekXp, weekStart:ws, ts:bot.ts,
+                    quizzes:bot.quizzes, _botId:bot._botId };
+    if(idx >= 0) lb[idx] = entry; else lb.push(entry);
+  });
+  return lb;
+}
+
+// ── Organic score updater — runs every 8 seconds, updates ready bots
+function _botsTickUpdate(){
+  const bots = _botsLoad();
+  const ws   = getWeekStart();
+  const now  = Date.now();
+  let changed = false;
+
+  bots.forEach(bot => {
+    // Reset week if needed
+    if(bot.weekStart !== ws){ bot.weekXp = 0; bot.weekStart = ws; }
+
+    if(now < (bot._nextUpdate || 0)) return; // not yet
+
+    // XP gain this tick: 8–28 XP (simulates finishing a quiz)
+    const xpGain = 8 + Math.floor(Math.random() * 21);
+    bot.xp      += xpGain;
+    bot.weekXp   = (bot.weekXp||0) + xpGain;
+    bot.quizzes  = (bot.quizzes||0) + 1;
+    bot.ts       = now;
+
+    // Occasionally bump streak (1-in-12 chance per tick)
+    if(Math.random() < 0.083) bot.streak = Math.min(bot.streak + 1, 150);
+
+    // Very rarely rotate display name variant (1-in-40 chance)
+    if(Math.random() < 0.025){
+      const roster = BOT_ROSTER[bot._botId];
+      if(roster){
+        bot._nameIdx = (bot._nameIdx + 1) % roster.names.length;
+        bot.name     = roster.names[bot._nameIdx];
+      }
+    }
+
+    // Schedule next update
+    bot._nextUpdate = now + _botNextDelay();
+    changed = true;
+  });
+
+  if(changed){
+    _botsSave(bots);
+    // Merge bots back into local LB cache
+    let lb = getLocalLB();
+    lb = _botsMergeIntoLB(lb);
+    lb.sort((a,b) => b.xp - a.xp);
+    try{ localStorage.setItem(KL, JSON.stringify(lb.slice(0,120))); }catch(e){}
+    // Refresh visible LB if home screen is active
+    renderLB();
+  }
+}
+
+// ── Start bot engine ──────────────────────────────────────────────
+function startBotEngine(){
+  _botsInit();
+  // Merge bots into LB right away
+  let lb = getLocalLB();
+  lb = _botsMergeIntoLB(lb);
+  lb.sort((a,b) => b.xp - a.xp);
+  try{ localStorage.setItem(KL, JSON.stringify(lb.slice(0,120))); }catch(e){}
+
+  // Tick every 8 seconds — each bot has its own _nextUpdate gate
+  if(_botTimer) clearInterval(_botTimer);
+  _botTimer = setInterval(_botsTickUpdate, 8000);
+}
+
+function startLBPoll(){if(lbTimer)clearInterval(lbTimer);lbTimer=setInterval(renderLB,30000);startBotEngine();}
 
 /* ─── SCREEN NAV ─────────────────────────── */
 function showScreen(id){
@@ -1730,13 +2253,13 @@ async function submitSuggestion(){
   var btn=document.getElementById('sg-btn');btn.disabled=true;btn.textContent='Sending...';
   var entry={id:'sg_'+Date.now(),type:'suggestion',name:name,email:email,category:cat,message:msg,ts:new Date().toISOString(),ua:navigator.userAgent.slice(0,100)};
   var ok=false;
-  if(typeof window.storage!=='undefined'){
-    try{await window.storage.set(FX_SUGGEST_PFX+entry.id,JSON.stringify(entry),true);ok=true;}
-    catch(e){console.error('Suggest submit:',e);}
-  }
-  if(!ok){
-    try{var arr=JSON.parse(localStorage.getItem('fx_suggests_local')||'[]');arr.push(entry);localStorage.setItem('fx_suggests_local',JSON.stringify(arr.slice(-100)));ok=true;}catch(e){}
-  }
+  try{
+    var arr=JSON.parse(localStorage.getItem('fx_suggests_local')||'[]');
+    arr.push(entry);
+    localStorage.setItem('fx_suggests_local',JSON.stringify(arr.slice(-200)));
+    ok=true;
+  }catch(e){}
+  try{var ch=new BroadcastChannel('fluentex_lb');ch.postMessage({type:'new_feedback',item:entry});ch.close();}catch(e){}
   if(ok){document.getElementById('sg-form-wrap').style.display='none';document.getElementById('sg-success').style.display='block';}
   else{btn.disabled=false;btn.innerHTML='💡 Submit Suggestion';alert('Submission failed. Please email: subhranil.in@outlook.com');}
 }
@@ -1750,16 +2273,596 @@ async function submitBugReport(){
   var btn=document.getElementById('bg-btn');btn.disabled=true;btn.textContent='Sending...';
   var entry={id:'bg_'+Date.now(),type:'bug_report',name:name,email:email,bugType:type,description:desc,ts:new Date().toISOString(),ua:navigator.userAgent.slice(0,100)};
   var ok=false;
-  if(typeof window.storage!=='undefined'){
-    try{await window.storage.set(FX_BUG_PFX+entry.id,JSON.stringify(entry),true);ok=true;}
-    catch(e){console.error('Bug submit:',e);}
-  }
-  if(!ok){
-    try{var arr=JSON.parse(localStorage.getItem('fx_bugs_local')||'[]');arr.push(entry);localStorage.setItem('fx_bugs_local',JSON.stringify(arr.slice(-100)));ok=true;}catch(e){}
-  }
+  try{
+    var arr=JSON.parse(localStorage.getItem('fx_bugs_local')||'[]');
+    arr.push(entry);
+    localStorage.setItem('fx_bugs_local',JSON.stringify(arr.slice(-200)));
+    ok=true;
+  }catch(e){}
+  try{var ch=new BroadcastChannel('fluentex_lb');ch.postMessage({type:'new_feedback',item:entry});ch.close();}catch(e){}
   if(ok){document.getElementById('bg-form-wrap').style.display='none';document.getElementById('bg-success').style.display='block';}
   else{btn.disabled=false;btn.innerHTML='🐛 Submit Bug Report';alert('Submission failed. Please email: subhranil.in@outlook.com');}
 }
+
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   FLUENTEX GLOBAL COMMUNITY CHAT
+   Real-time chat via localStorage + BroadcastChannel
+   Features: follow/unfollow, like/dislike, reply, moderation, bots
+══════════════════════════════════════════════════════════════════════ */
+
+const CHAT_KEY      = 'fx_chat_v2';
+const FOLLOWS_KEY   = 'fx_follows_v1';
+const CHAT_CHAN     = 'fluentex_chat';
+const MOD_NAME      = 'FluentexMod';
+const MOD_FLAG      = '🛡️';
+const MAX_MSGS      = 300;
+
+let _chatChannel    = null;
+let _chatTab        = 'chat';
+let _replyTo        = null;   // {id, author, text}
+let _chatPollTimer  = null;
+let _botChatTimer   = null;
+let _profileTarget  = null;   // name being shown in profile modal
+let _chatOpen       = false;
+let _lastMsgCount   = 0;
+
+// ── Phone number detection regex ──────────────────────────────────
+const PHONE_RE = /(\+?\d[\d\s\-\.\(\)]{7,}\d)/g;
+
+// ── Avatar colour from name hash ──────────────────────────────────
+const AV_COLORS = ['#00c3ff','#05f285','#b06aff','#ff8330','#ffd426','#ff4668','#00eeff','#ff69b4','#1ec9c9','#ff6b35'];
+function avColor(name){
+  let h = 0;
+  for(let i = 0; i < (name||'?').length; i++) h = (h * 31 + (name||'?').charCodeAt(i)) % AV_COLORS.length;
+  return AV_COLORS[h];
+}
+function avLetter(name){ return (name||'?')[0].toUpperCase(); }
+
+// ── HTML escape ───────────────────────────────────────────────────
+function chEsc(s){ return String(s||'').replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+// ── Storage ───────────────────────────────────────────────────────
+function chatLoad(){
+  try{ return JSON.parse(localStorage.getItem(CHAT_KEY)||'[]'); }catch(e){ return []; }
+}
+function chatSave(msgs){
+  try{ localStorage.setItem(CHAT_KEY, JSON.stringify(msgs.slice(-MAX_MSGS))); }catch(e){}
+}
+function followsLoad(){
+  try{ return new Set(JSON.parse(localStorage.getItem(FOLLOWS_KEY)||'[]')); }catch(e){ return new Set(); }
+}
+function followsSave(set){
+  try{ localStorage.setItem(FOLLOWS_KEY, JSON.stringify([...set])); }catch(e){}
+}
+
+// ── Create message object ─────────────────────────────────────────
+function makeMsg(author, flag, text, replyTo, isBotMsg, isModMsg){
+  return {
+    id:       'cm' + Date.now() + Math.random().toString(36).slice(2,6),
+    author:   author,
+    flag:     flag || '🌍',
+    text:     text,
+    ts:       Date.now(),
+    likes:    [],
+    dislikes: [],
+    replyTo:  replyTo || null,
+    isBot:    !!isBotMsg,
+    isMod:    !!isModMsg,
+    deleted:  false
+  };
+}
+
+// ── Phone moderation ─────────────────────────────────────────────
+function modCheck(msg){
+  if(msg.isMod) return false;
+  const hasPhone = PHONE_RE.test(msg.text);
+  PHONE_RE.lastIndex = 0;
+  return hasPhone;
+}
+function modAct(msgs, msgId, authorName){
+  const idx = msgs.findIndex(function(m){ return m.id === msgId; });
+  if(idx >= 0){ msgs[idx].deleted = true; msgs[idx].text = '🚫 Message removed by moderator'; }
+  const warn = makeMsg(MOD_NAME, MOD_FLAG,
+    '⚠️ Hey @' + authorName + '! Sharing phone numbers is not allowed in the community. Please keep personal info private. This message has been removed.',
+    null, false, true);
+  msgs.splice(idx + 1, 0, warn);
+  return msgs;
+}
+
+// ── Send a message ────────────────────────────────────────────────
+function sendChatMsg(){
+  if(!U.name){ alert('Please set your name first!'); return; }
+  const inp = document.getElementById('chat-input');
+  const text = (inp.value || '').trim();
+  if(!text) return;
+  if(text.length > 500){ alert('Message too long (max 500 chars)'); return; }
+
+  let msgs = chatLoad();
+  const msg = makeMsg(U.name, U.flag, text, _replyTo, false, false);
+  msgs.push(msg);
+
+  // Mod check
+  if(modCheck(msg)){
+    msgs = modAct(msgs, msg.id, U.name);
+    chatSave(msgs);
+    _broadcastChat();
+    renderChatMsgs();
+    inp.value = ''; inp.style.height = 'auto'; clearReply();
+    return;
+  }
+
+  chatSave(msgs);
+  _broadcastChat();
+  inp.value = ''; inp.style.height = 'auto'; clearReply();
+  renderChatMsgs(true);
+}
+
+// ── Like / Dislike ────────────────────────────────────────────────
+function chatLike(id){
+  if(!U.name) return;
+  const msgs = chatLoad();
+  const m = msgs.find(function(x){ return x.id === id; });
+  if(!m) return;
+  if(!m.likes) m.likes = [];
+  if(!m.dislikes) m.dislikes = [];
+  const li = m.likes.indexOf(U.name);
+  const di = m.dislikes.indexOf(U.name);
+  if(li >= 0){ m.likes.splice(li, 1); }
+  else{ m.likes.push(U.name); if(di >= 0) m.dislikes.splice(di, 1); }
+  chatSave(msgs);
+  _broadcastChat();
+  renderChatMsgs();
+}
+function chatDislike(id){
+  if(!U.name) return;
+  const msgs = chatLoad();
+  const m = msgs.find(function(x){ return x.id === id; });
+  if(!m) return;
+  if(!m.likes) m.likes = [];
+  if(!m.dislikes) m.dislikes = [];
+  const di = m.dislikes.indexOf(U.name);
+  const li = m.likes.indexOf(U.name);
+  if(di >= 0){ m.dislikes.splice(di, 1); }
+  else{ m.dislikes.push(U.name); if(li >= 0) m.likes.splice(li, 1); }
+  chatSave(msgs);
+  _broadcastChat();
+  renderChatMsgs();
+}
+
+// ── Reply ─────────────────────────────────────────────────────────
+function setReply(id, author, text){
+  _replyTo = {id: id, author: author, text: text};
+  const preview = document.getElementById('chat-reply-preview');
+  document.getElementById('crp-name').textContent = author;
+  document.getElementById('crp-text').textContent = text.slice(0, 60) + (text.length > 60 ? '…' : '');
+  preview.classList.add('show');
+  document.getElementById('chat-input').focus();
+}
+function clearReply(){
+  _replyTo = null;
+  document.getElementById('chat-reply-preview').classList.remove('show');
+}
+
+// ── Follow / Unfollow ─────────────────────────────────────────────
+function toggleFollow(name){
+  if(!U.name || name === U.name) return;
+  const f = followsLoad();
+  if(f.has(name)) f.delete(name); else f.add(name);
+  followsSave(f);
+  renderUsersPanel();
+  renderChatMsgs();
+}
+
+// ── Profile modal ─────────────────────────────────────────────────
+function openProfileModal(name, flag){
+  _profileTarget = name;
+  // Find user data from bots or current user
+  const bots = _botsLoad ? _botsLoad() : [];
+  const botData = bots.find(function(b){ return b.name === name || BOT_ROSTER.find(function(r){ return r.names.indexOf(name) >= 0 && r.names[b._nameIdx] === name; }); });
+  const isMe = name === U.name;
+  const xp = isMe ? U.xp : (botData ? botData.xp : 0);
+  const streak = isMe ? U.streak : (botData ? botData.streak : 0);
+  const msgs = chatLoad();
+  const msgCount = msgs.filter(function(m){ return m.author === name && !m.deleted; }).length;
+  const fol = followsLoad();
+  const isFollowing = fol.has(name);
+
+  // Avatar
+  const av = document.getElementById('pm-av');
+  av.style.background = avColor(name);
+  av.textContent = avLetter(name);
+
+  document.getElementById('pm-name').textContent = name;
+  document.getElementById('pm-flag').textContent = flag || '🌍';
+  document.getElementById('pm-country').textContent = '';
+  document.getElementById('pm-xp').textContent = xp;
+  document.getElementById('pm-streak').textContent = streak;
+  document.getElementById('pm-msgs').textContent = msgCount;
+
+  const badgeRow = document.getElementById('pm-badge-row');
+  if(name === MOD_NAME){ badgeRow.innerHTML = '<span class="msg-badge mod">MOD</span>'; }
+  else if(botData){ badgeRow.innerHTML = ''; } // bots show no badge
+  else if(xp > 5000){ badgeRow.innerHTML = '<span class="msg-badge top">TOP</span>'; }
+  else { badgeRow.innerHTML = ''; }
+
+  const fbtn = document.getElementById('pm-follow-btn');
+  if(isMe || name === MOD_NAME){
+    fbtn.style.display = 'none';
+  } else {
+    fbtn.style.display = '';
+    if(isFollowing){
+      fbtn.textContent = '✅ Following — Click to Unfollow';
+      fbtn.className = 'pm-follow-btn following';
+    } else {
+      fbtn.textContent = '➕ Follow ' + name;
+      fbtn.className = 'pm-follow-btn follow';
+    }
+  }
+  document.getElementById('profile-modal').classList.add('on');
+}
+function toggleFollowFromModal(){
+  if(_profileTarget) toggleFollow(_profileTarget);
+  // Update button
+  const fol = followsLoad();
+  const fbtn = document.getElementById('pm-follow-btn');
+  if(fol.has(_profileTarget)){
+    fbtn.textContent = '✅ Following — Click to Unfollow';
+    fbtn.className = 'pm-follow-btn following';
+  } else {
+    fbtn.textContent = '➕ Follow ' + _profileTarget;
+    fbtn.className = 'pm-follow-btn follow';
+  }
+}
+
+// ── Scroll to message ─────────────────────────────────────────────
+function scrollToMsg(id){
+  const el = document.querySelector('[data-msgid="' + id + '"]');
+  if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+// ── Time formatter ────────────────────────────────────────────────
+function chatTimeAgo(ts){
+  const diff = Date.now() - ts;
+  if(diff < 60000) return 'just now';
+  if(diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+  if(diff < 86400000){
+    const d = new Date(ts);
+    return d.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+  }
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
+}
+
+// ── Render messages ───────────────────────────────────────────────
+function renderChatMsgs(scrollBottom){
+  const wrap = document.getElementById('chat-messages');
+  if(!wrap) return;
+  const msgs = chatLoad();
+  const fol = followsLoad();
+
+  if(!msgs.length){
+    wrap.innerHTML = '<div class="chat-empty"><div class="chat-empty-ico">💬</div><div style="font-size:14px;font-weight:800;margin-bottom:6px">Be the first to say hi!</div><div style="font-size:12px;color:var(--text3);font-weight:600">The community is waiting for you 🌍</div></div>';
+    return;
+  }
+
+  let html = '';
+  let lastDate = '';
+
+  msgs.forEach(function(m){
+    if(!m || !m.id) return;
+    const d = new Date(m.ts);
+    const dateStr = d.toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short'});
+    if(dateStr !== lastDate){
+      html += '<div class="chat-date-div">' + chEsc(dateStr) + '</div>';
+      lastDate = dateStr;
+    }
+
+    if(m.isMod && m.deleted){ return; } // skip deleted mod echo
+
+    const isMe = m.author === U.name;
+    const isMod = m.isMod || m.author === MOD_NAME;
+    const isBot = m.isBot;
+    const liked = (m.likes||[]).indexOf(U.name) >= 0;
+    const disliked = (m.dislikes||[]).indexOf(U.name) >= 0;
+    const lc = (m.likes||[]).length;
+    const dc = (m.dislikes||[]).length;
+    const color = avColor(m.author);
+    const letter = avLetter(m.author);
+
+    let rowClass = 'msg-row';
+    if(isMe) rowClass += ' mine';
+    if(isMod) rowClass += ' mod-msg';
+    if(m.deleted) rowClass += ' deleted';
+
+    let badgeHtml = '';
+    if(isMod) badgeHtml = '<span class="msg-badge mod">MOD</span>';
+    // bots show no badge — they appear as regular users
+    else if((m.likes||[]).length >= 5) badgeHtml = '<span class="msg-badge top">🔥</span>';
+
+    let replyHtml = '';
+    if(m.replyTo && m.replyTo.author){
+      replyHtml = '<div class="msg-reply-quote" onclick="scrollToMsg(\'' + m.replyTo.id + '\')">'
+        + '<div class="rq-author">↩ ' + chEsc(m.replyTo.author) + '</div>'
+        + '<div class="rq-text">' + chEsc((m.replyTo.text||'').slice(0,80)) + '</div>'
+        + '</div>';
+    }
+
+    const actionsHtml = m.deleted ? '' :
+      '<div class="msg-actions">'
+      + '<button class="msg-act-btn ' + (liked ? 'liked' : '') + '" onclick="chatLike(\'' + m.id + '\')">👍 ' + lc + '</button>'
+      + '<button class="msg-act-btn ' + (disliked ? 'disliked' : '') + '" onclick="chatDislike(\'' + m.id + '\')">👎 ' + dc + '</button>'
+      + (!m.deleted ? '<button class="msg-act-btn reply-btn" onclick="setReply(\'' + m.id + '\',\'' + chEsc(m.author).replace(/'/g,"\\'") + '\',\'' + chEsc((m.text||'').slice(0,80)).replace(/'/g,"\\'") + '\')">↩ Reply</button>' : '')
+      + '<button class="msg-act-btn" onclick="openProfileModal(\'' + chEsc(m.author).replace(/'/g,"\\'") + '\',\'' + (m.flag||'🌍') + '\')">👤</button>'
+      + '</div>';
+
+    html += '<div class="' + rowClass + '" data-msgid="' + m.id + '">'
+      + '<div class="msg-av" style="background:' + color + '" onclick="openProfileModal(\'' + chEsc(m.author).replace(/'/g,"\\'") + '\',\'' + (m.flag||'🌍') + '\')">' + letter + '</div>'
+      + '<div class="msg-bubble">'
+        + '<div class="msg-meta">'
+          + '<span class="msg-author" style="color:' + color + '" onclick="openProfileModal(\'' + chEsc(m.author).replace(/'/g,"\\'") + '\',\'' + (m.flag||'🌍') + '\')">' + chEsc(m.author) + '</span>'
+          + '<span class="msg-flag">' + (m.flag||'🌍') + '</span>'
+          + badgeHtml
+          + '<span class="msg-time">' + chatTimeAgo(m.ts) + '</span>'
+        + '</div>'
+        + replyHtml
+        + '<div class="msg-text">' + chEsc(m.text) + '</div>'
+        + actionsHtml
+      + '</div>'
+    + '</div>';
+  });
+
+  const wasAtBottom = wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight < 80;
+  wrap.innerHTML = html;
+  if(scrollBottom || wasAtBottom){
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  // Update header
+  const authors = new Set(msgs.slice(-50).filter(function(m){ return !m.deleted; }).map(function(m){ return m.author; }));
+  const sub = document.getElementById('chat-hdr-sub');
+  if(sub) sub.textContent = authors.size + ' active · ' + msgs.filter(function(m){ return !m.deleted; }).length + ' messages';
+}
+
+// ── Render users panel ────────────────────────────────────────────
+function renderUsersPanel(){
+  const wrap = document.getElementById('users-panel');
+  if(!wrap) return;
+  const msgs = chatLoad();
+  const fol = followsLoad();
+
+  // Collect all known users (from messages + bots)
+  const seen = {};
+  msgs.forEach(function(m){
+    if(!m.deleted && m.author && !seen[m.author]){
+      const mc = msgs.filter(function(x){ return x.author === m.author; }).length;
+      seen[m.author] = {name:m.author, flag:m.flag||'🌍', isBot:m.isBot||false, isMod:m.isMod||false, msgs:mc};
+    }
+  });
+
+  // Also add bots who haven't chatted yet
+  const bots = typeof _botsLoad === 'function' ? _botsLoad() : [];
+  bots.forEach(function(b){
+    if(!seen[b.name]) seen[b.name] = {name:b.name, flag:b.flag||'🌍', isBot:true, isMod:false, msgs:0, xp:b.xp||0};
+  });
+
+  const users = Object.values(seen).sort(function(a,b){ return (b.msgs||0) - (a.msgs||0); });
+
+  if(!users.length){
+    wrap.innerHTML = '<div class="chat-empty"><div class="chat-empty-ico">👥</div><div style="font-size:14px;font-weight:800">No members yet</div></div>';
+    return;
+  }
+
+  let html = '';
+  users.forEach(function(u){
+    const isMe = u.name === U.name;
+    const isFollowing = fol.has(u.name);
+    const color = avColor(u.name);
+    let badge = '';
+    if(u.isMod) badge = '<span class="msg-badge mod" style="font-size:9px">MOD</span>';
+    // bots show no badge in members list
+    let subTxt = u.msgs + ' message' + (u.msgs !== 1 ? 's' : '');
+    if(u.xp) subTxt += ' · ⚡' + u.xp + ' XP';
+
+    let followBtn = '';
+    if(!isMe && u.name !== MOD_NAME){
+      if(isFollowing){
+        followBtn = '<button class="uc-follow-btn following" onclick="event.stopPropagation();toggleFollow(\'' + chEsc(u.name).replace(/'/g,"\\'") + '\')">✅ Following</button>';
+      } else {
+        followBtn = '<button class="uc-follow-btn follow" onclick="event.stopPropagation();toggleFollow(\'' + chEsc(u.name).replace(/'/g,"\\'") + '\')">+ Follow</button>';
+      }
+    }
+
+    html += '<div class="user-card" onclick="openProfileModal(\'' + chEsc(u.name).replace(/'/g,"\\'") + '\',\'' + (u.flag||'🌍') + '\')">'
+      + '<div class="uc-av" style="background:' + color + '">' + avLetter(u.name) + '</div>'
+      + '<div style="flex:1;min-width:0">'
+        + '<div class="uc-name">' + chEsc(u.name) + ' ' + (u.flag||'🌍') + ' ' + badge + '</div>'
+        + '<div class="uc-sub">' + subTxt + '</div>'
+      + '</div>'
+      + followBtn
+    + '</div>';
+  });
+
+  wrap.innerHTML = html;
+}
+
+// ── Tab switcher ──────────────────────────────────────────────────
+function switchChatTab(tab){
+  _chatTab = tab;
+  document.querySelectorAll('.chat-tab').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('ctab-' + tab).classList.add('active');
+  const chatMsgs = document.getElementById('chat-messages');
+  const usersPanel = document.getElementById('users-panel');
+  const inputWrap = document.getElementById('chat-input-wrap');
+  if(tab === 'chat'){
+    chatMsgs.style.display = 'flex';
+    usersPanel.classList.remove('active');
+    inputWrap.style.display = '';
+    renderChatMsgs();
+  } else {
+    chatMsgs.style.display = 'none';
+    usersPanel.classList.add('active');
+    inputWrap.style.display = 'none';
+    renderUsersPanel();
+  }
+}
+
+// ── BroadcastChannel ──────────────────────────────────────────────
+function _broadcastChat(){
+  try{
+    if(_chatChannel) _chatChannel.postMessage({type:'chat_update', ts: Date.now()});
+  }catch(e){}
+}
+function _initChatChannel(){
+  try{
+    if(_chatChannel) _chatChannel.close();
+    _chatChannel = new BroadcastChannel(CHAT_CHAN);
+    _chatChannel.onmessage = function(e){
+      if(e.data && e.data.type === 'chat_update'){
+        if(_chatTab === 'chat') renderChatMsgs();
+        else renderUsersPanel();
+      }
+    };
+  }catch(e){}
+}
+
+// ── Poll for updates (fallback) ───────────────────────────────────
+function _chatPoll(){
+  const msgs = chatLoad();
+  if(msgs.length !== _lastMsgCount){
+    _lastMsgCount = msgs.length;
+    if(_chatTab === 'chat') renderChatMsgs();
+    else renderUsersPanel();
+  }
+}
+
+// ── Open/close community chat ─────────────────────────────────────
+function openCommunity(){
+  showScreen('community');
+  _chatOpen = true;
+  renderChatMsgs(true);
+  if(!U.name){
+    const hint = document.getElementById('chat-login-hint');
+    if(hint) hint.textContent = '⚠️ Set your name on the home screen to participate!';
+    const inp = document.getElementById('chat-input');
+    if(inp) inp.disabled = true;
+  } else {
+    const inp = document.getElementById('chat-input');
+    if(inp) inp.disabled = false;
+  }
+  if(_chatPollTimer) clearInterval(_chatPollTimer);
+  _chatPollTimer = setInterval(_chatPoll, 4000);
+  _initChatChannel();
+}
+
+// ── BOT CHAT SYSTEM ───────────────────────────────────────────────
+const BOT_MSGS_POOL = [
+  "Just finished my daily vocabulary quiz! Feeling so much more confident 💪",
+  "Does anyone have tips for remembering phrasal verbs? I always mix them up 😅",
+  "I scored 100% on the B2 grammar quiz today! Third time trying 🎉",
+  "Quick tip: reading English news articles every morning really helps with comprehension!",
+  "Anyone else find idioms super tricky? 'Under the weather' got me today 😂",
+  "I've been using Fluentex for 3 weeks and my streak is still going strong 🔥",
+  "The AI flashcards in this app are amazing for building vocabulary fast",
+  "Pro tip: learn 5 new words a day and review them before bed. Works wonders!",
+  "Just reached B1 level after months of practice! Don't give up everyone 🚀",
+  "What's the hardest English tense for you? For me it's the present perfect 😬",
+  "Good morning everyone! Let's crush our daily learning goals today ☀️",
+  "I love how the quiz questions adapt to your weak areas. So smart!",
+  "Anyone want to practice conversation topics? I'm studying for IELTS 📚",
+  "Just unlocked the 'Scholar' badge! Really motivating to see progress 🏅",
+  "English conditional sentences are my nemesis... if I had studied more, I would have passed 😅",
+  "The Word of the Day feature is brilliant. Today's word was 'serendipity'!",
+  "Consistency is key! Even 15 minutes a day makes a huge difference over time 🌟",
+  "I struggle with 'affect' vs 'effect'. Anyone have a simple trick?",
+  "Just hit 100 day streak! This app keeps me so motivated 💯",
+  "Listening to English podcasts while commuting is my secret weapon 🎧",
+  "Remember: mistakes are proof that you are trying! Keep going everyone 💪",
+  "The difference between 'since' and 'for' with present perfect is mind-blowing once you get it",
+  "I find writing English emails much easier now. Practice really does make perfect!",
+  "Good luck to everyone doing their quizzes today! You got this 🌍",
+  "Tip: shadowing native speakers (mimicking their speech) is incredible for accent improvement",
+  "Just discovered that using spaced repetition makes vocabulary stick so much better!",
+  "Does anyone find the C1 quizzes as hard as I do? They are brutal! 😤",
+  "Watching English movies with English subtitles is my favourite way to learn 🎬",
+  "I passed my Cambridge B2 exam last week! Fluentex helped so much 🎊",
+  "Never give up! Language learning is a marathon, not a sprint 🏃",
+];
+
+const BOT_REACTIONS = [
+  "That's such a great tip! I'll definitely try that 👍",
+  "I totally agree with this! Great point 🙌",
+  "Same here! That method works really well",
+  "Thanks for sharing! This is super helpful 😊",
+  "This is exactly what I needed to hear today! Thank you 💙",
+  "Congratulations! That's such an achievement 🎉",
+  "Keep going! You're doing amazing 🔥",
+  "Wow, that's impressive progress! Well done 👏",
+  "Great advice! Adding this to my study routine",
+  "I struggle with the same thing! Nice to know I'm not alone 😅",
+];
+
+let _botChatIdx = 0;
+
+function _botChatTick(){
+  if(!_chatOpen) return;
+  const msgs = chatLoad();
+
+  // Pick a random bot from roster
+  const bots = typeof _botsLoad === 'function' ? _botsLoad() : [];
+  if(!bots.length) return;
+  const bot = bots[Math.floor(Math.random() * bots.length)];
+  if(!bot) return;
+
+  let text, replyTo = null;
+
+  // 30% chance to reply to a recent real message
+  const recentReal = msgs.slice(-20).filter(function(m){ return !m.isBot && !m.isMod && !m.deleted; });
+  if(recentReal.length && Math.random() < 0.3){
+    const target = recentReal[Math.floor(Math.random() * recentReal.length)];
+    text = BOT_REACTIONS[Math.floor(Math.random() * BOT_REACTIONS.length)];
+    replyTo = {id: target.id, author: target.author, text: target.text};
+  } else {
+    text = BOT_MSGS_POOL[(_botChatIdx++) % BOT_MSGS_POOL.length];
+    if(_botChatIdx >= BOT_MSGS_POOL.length){ _botChatIdx = Math.floor(Math.random() * BOT_MSGS_POOL.length); }
+  }
+
+  const msg = makeMsg(bot.name, bot.flag, text, replyTo, true, false);
+  msgs.push(msg);
+  chatSave(msgs);
+  _broadcastChat();
+  if(_chatTab === 'chat') renderChatMsgs();
+}
+
+// ── Moderator bot welcome message (once per session) ─────────────
+function _modWelcome(){
+  const msgs = chatLoad();
+  const todayStr = new Date().toDateString();
+  const hasToday = msgs.some(function(m){ return m.isMod && new Date(m.ts).toDateString() === todayStr; });
+  if(!hasToday){
+    const welcome = makeMsg(MOD_NAME, MOD_FLAG,
+      '👋 Welcome to Fluentex Community Chat! 🌍 This is a safe space for English learners worldwide. Be kind, be helpful, and keep it fun! 🚫 No spam, no personal info (phone numbers will be auto-removed). Happy learning! 📚✨',
+      null, false, true);
+    msgs.unshift(welcome);
+    chatSave(msgs);
+  }
+}
+
+// ── Start bot chat engine ─────────────────────────────────────────
+function startBotChat(){
+  _modWelcome();
+  // Bots post every 20-60 seconds
+  function scheduleBotMsg(){
+    const delay = 20000 + Math.floor(Math.random() * 40000);
+    _botChatTimer = setTimeout(function(){
+      _botChatTick();
+      scheduleBotMsg();
+    }, delay);
+  }
+  scheduleBotMsg();
+}
+
 
 </script>
 
@@ -1837,57 +2940,279 @@ async function submitBugReport(){
 
 <div id="notif-tray"></div>
 <script>
-/* IN-APP PUSH NOTIFICATIONS */
-var FX_NOTIF_PFX='fx_notif_v1:';
-var FX_SEEN_KEY='fx_notif_seen_v1';
-var _notifSeenIds=new Set();
-var _notifTimer=null;
-function _loadSeenIds(){try{var s=localStorage.getItem(FX_SEEN_KEY);if(s)_notifSeenIds=new Set(JSON.parse(s));}catch(e){}}
-function _markSeen(id){_notifSeenIds.add(id);try{localStorage.setItem(FX_SEEN_KEY,JSON.stringify([..._notifSeenIds].slice(-200)));}catch(e){}}
-async function checkNotifications(){
-  if(typeof window.storage==='undefined')return;
-  if(!U||!U.name)return;
-  _loadSeenIds();
-  var slug=U.name.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,24);
-  var keysToCheck=[];
-  try{
-    var bList=await window.storage.list(FX_NOTIF_PFX+'_broadcast_',true);
-    if(bList&&bList.keys)keysToCheck.push(...bList.keys);
-    var uList=await window.storage.list(FX_NOTIF_PFX+slug+'_',true);
-    if(uList&&uList.keys)keysToCheck.push(...uList.keys);
-  }catch(e){return;}
-  for(var i=0;i<keysToCheck.length;i++){
-    try{
-      var r=await window.storage.get(keysToCheck[i],true);
-      if(!r||!r.value)continue;
-      var notif=JSON.parse(r.value);
-      if(!notif||!notif.id)continue;
-      if(_notifSeenIds.has(notif.id))continue;
-      if(notif.ts&&(Date.now()-notif.ts)>7*24*3600*1000){_markSeen(notif.id);continue;}
-      _markSeen(notif.id);
-      showInAppNotif(notif);
-    }catch(e){}
+/* ══ NOTIFICATIONS — localStorage + BroadcastChannel ═══════════════ */
+
+var _NP_STORE_KEY  = 'fx_notif_store_v2';   // all received notifs
+var _NP_SEEN_KEY   = 'fx_notif_seen_v2';    // set of read IDs
+var _NP_SRC_BCAST  = 'fx_notifs_broadcast'; // admin broadcast key
+var _NP_SRC_USER   = 'fx_notifs_u_';        // admin per-user key prefix
+
+var _npAll     = [];   // all stored notif objects
+var _npRead    = new Set();
+var _npTimer   = null;
+var _npChannel = null;
+var _npTab     = 'all';  // 'all' | 'unread'
+var _npOpen    = false;
+
+/* ── Persistence ── */
+function _npLoad(){
+  try{ _npAll  = JSON.parse(localStorage.getItem(_NP_STORE_KEY)||'[]'); }catch(e){ _npAll=[]; }
+  try{ _npRead = new Set(JSON.parse(localStorage.getItem(_NP_SEEN_KEY)||'[]')); }catch(e){ _npRead=new Set(); }
+}
+function _npSave(){
+  try{ localStorage.setItem(_NP_STORE_KEY, JSON.stringify(_npAll.slice(0,200))); }catch(e){}
+  try{ localStorage.setItem(_NP_SEEN_KEY,  JSON.stringify([..._npRead].slice(0,500))); }catch(e){}
+}
+
+/* ── Add a notification to the store (deduped) ── */
+function _npAdd(notif){
+  if(!notif||!notif.id) return false;
+  if(_npAll.find(function(n){return n.id===notif.id;})) return false;
+  _npAll.unshift(notif);
+  _npSave();
+  return true;
+}
+
+/* ── Unread count ── */
+function _npUnread(){
+  return _npAll.filter(function(n){ return !_npRead.has(n.id); }).length;
+}
+
+/* ── Update bell badge ── */
+function _npUpdateBadge(){
+  var cnt = _npUnread();
+  var badge = document.getElementById('notif-badge');
+  var btn   = document.getElementById('notif-bell-btn');
+  if(!badge||!btn) return;
+  if(cnt>0){
+    badge.textContent = cnt>99?'99+':cnt;
+    badge.style.display='flex';
+    btn.classList.add('has-unread');
+  } else {
+    badge.style.display='none';
+    btn.classList.remove('has-unread');
+  }
+  var pill = document.getElementById('np-unread-pill');
+  if(pill){
+    if(cnt>0){ pill.textContent=cnt+' new'; pill.style.display=''; }
+    else pill.style.display='none';
+  }
+  // update unread tab label
+  var utab = document.getElementById('np-tab-unread');
+  if(utab) utab.textContent = cnt>0 ? 'Unread ('+cnt+')' : 'Unread';
+}
+
+/* ── Render panel ── */
+var NP_ICONS = {info:'ℹ️',success:'✅',warning:'⚠️',announcement:'📣',reply:'💬'};
+function _npEsc(s){ return String(s||'').replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+function _npTimeAgo(ts){
+  var diff = Date.now()-ts;
+  if(diff<60000) return 'just now';
+  if(diff<3600000) return Math.floor(diff/60000)+'m ago';
+  if(diff<86400000) return Math.floor(diff/3600000)+'h ago';
+  var d=new Date(ts);
+  return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+
+function _npRender(){
+  var body = document.getElementById('np-body');
+  if(!body) return;
+  _npLoad();
+  var items = _npTab==='unread'
+    ? _npAll.filter(function(n){ return !_npRead.has(n.id); })
+    : _npAll;
+  if(!items.length){
+    var msg = _npTab==='unread' ? 'All caught up!' : 'No notifications yet';
+    var sub = _npTab==='unread' ? 'No unread notifications' : 'Admin notifications will appear here';
+    body.innerHTML='<div class="np-empty"><span class="np-empty-ico">'+(_npTab==='unread'?'✅':'🔔')+'</span>'+msg+'<div style="font-size:11px;color:var(--text3);margin-top:5px;font-weight:600">'+sub+'</div></div>';
+    return;
+  }
+  body.innerHTML = items.map(function(n){
+    var isUnread = !_npRead.has(n.id);
+    var ico = NP_ICONS[n.type]||'🔔';
+    var id  = _npEsc(n.id);
+    return '<div class="np-item'+(isUnread?' unread':'')+'" data-nid="'+id+'">'
+      +'<div class="np-item-ico '+(n.type||'info')+'">'+ico+'</div>'
+      +'<div class="np-item-body">'
+        +'<div class="np-item-title">'+_npEsc(n.title||'Notification')+'</div>'
+        +'<div class="np-item-msg">'+_npEsc(n.message||'')+'</div>'
+        +'<div class="np-item-time">'+_npTimeAgo(n.ts||Date.now())+'</div>'
+      +'</div>'
+      +'<button class="np-item-del" data-del="'+id+'" title="Delete">✕</button>'
+    +'</div>';
+  }).join('');
+  // Attach handlers via JS (avoids inline-onclick quoting issues)
+  body.querySelectorAll('.np-item').forEach(function(el){
+    el.addEventListener('click',function(e){
+      if(e.target.closest('.np-item-del')) return;
+      _npMarkRead(el.dataset.nid);
+    });
+  });
+  body.querySelectorAll('.np-item-del').forEach(function(btn){
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      _npDelete(btn.dataset.del);
+    });
+  });
+}
+
+function _npMarkRead(id){
+  _npRead.add(id);
+  _npSave();
+  _npUpdateBadge();
+  _npRender();
+}
+
+function _npDelete(id){
+  _npAll = _npAll.filter(function(n){ return n.id!==id; });
+  _npRead.delete(id);
+  _npSave();
+  _npUpdateBadge();
+  _npRender();
+}
+
+function markAllNotifsRead(){
+  _npAll.forEach(function(n){ _npRead.add(n.id); });
+  _npSave();
+  _npUpdateBadge();
+  _npRender();
+}
+
+function clearAllNotifs(){
+  if(!_npAll.length) return;
+  _npAll=[];
+  _npRead=new Set();
+  _npSave();
+  _npUpdateBadge();
+  _npRender();
+}
+
+function switchNotifTab(tab, el){
+  _npTab=tab;
+  document.querySelectorAll('.np-tab').forEach(function(b){b.classList.remove('active');});
+  el.classList.add('active');
+  _npRender();
+}
+
+/* ── Toggle panel open/close ── */
+function toggleNotifPanel(){
+  var panel=document.getElementById('notif-panel');
+  if(!panel) return;
+  _npOpen=!_npOpen;
+  if(_npOpen){
+    panel.classList.add('open');
+    _npLoad();
+    _npRender();
+    _npUpdateBadge();
+  } else {
+    panel.classList.remove('open');
   }
 }
+
+/* Close panel when clicking outside */
+document.addEventListener('click',function(e){
+  var wrap=document.getElementById('notif-bell-wrap');
+  if(_npOpen && wrap && !wrap.contains(e.target)){
+    document.getElementById('notif-panel').classList.remove('open');
+    _npOpen=false;
+  }
+});
+
+/* ── Poll localStorage for new notifs from admin ── */
+function checkNotifications(){
+  if(!U||!U.name) return;
+  _npLoad();
+  var slug = U.name.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,24);
+  var added = 0;
+
+  [_NP_SRC_BCAST, _NP_SRC_USER+slug].forEach(function(key){
+    var arr=[];
+    try{ arr=JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){ return; }
+    arr.forEach(function(notif){
+      if(!notif||!notif.id) return;
+      if(notif.ts && (Date.now()-notif.ts)>30*24*3600*1000) return; // skip >30 days
+      if(_npAdd(notif)) added++;
+    });
+  });
+
+  if(added>0){
+    _npSave();
+    _npUpdateBadge();
+    if(_npOpen) _npRender();
+    // Show tray pop-up for the newest one
+    var newest = _npAll[0];
+    if(newest && !_npRead.has(newest.id)) showInAppNotif(newest);
+  }
+}
+
+/* ── BroadcastChannel: instant delivery from admin ── */
+function _npInitChannel(){
+  try{
+    if(_npChannel) _npChannel.close();
+    _npChannel = new BroadcastChannel('fluentex_notif');
+    _npChannel.onmessage = function(e){
+      if(!e.data || e.data.type!=='push_notif' || !e.data.notif) return;
+      var notif = e.data.notif;
+      var slug  = (U.name||'').toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,24);
+      var mine  = notif.target==='_broadcast'||notif.target===U.name||notif.target===slug;
+      if(!mine) return;
+      _npLoad();
+      if(_npAdd(notif)){
+        _npSave();
+        _npUpdateBadge();
+        if(_npOpen) _npRender();
+        showInAppNotif(notif);
+      }
+    };
+  }catch(e){}
+}
+
+/* ── Tray toast (brief pop-up at top) ── */
 var NOTIF_ICONS={info:'ℹ️',success:'✅',warning:'⚠️',announcement:'📣',reply:'💬'};
-function escHtml(s){return String(s||'').replace(/[&<>'"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c];});}
+function _escH(s){return String(s||'').replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function showInAppNotif(notif){
   var tray=document.getElementById('notif-tray');
-  if(!tray)return;
+  if(!tray) return;
   var card=document.createElement('div');
   card.className='notif-card notif-'+(notif.type||'info');
-  card.innerHTML='<span class="notif-ico">'+(NOTIF_ICONS[notif.type]||'🔔')+'</span><div class="notif-body"><div class="notif-title">'+escHtml(notif.title||'Notification')+'</div><div class="notif-msg">'+escHtml(notif.message||'')+'</div><div class="notif-from">From Fluentex Admin · '+new Date(notif.ts||Date.now()).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+'</div></div><button class="notif-dismiss" onclick="this.closest(\'.notif-card\').remove()" title="Dismiss">✕</button>';
+  var ico=NOTIF_ICONS[notif.type]||'🔔';
+  var ts=new Date(notif.ts||Date.now()).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  card.innerHTML=
+    '<span class="notif-ico">'+ico+'</span>'+
+    '<div class="notif-body">'+
+      '<div class="notif-title">'+_escH(notif.title||'Notification')+'</div>'+
+      '<div class="notif-msg">'+_escH(notif.message||'')+'</div>'+
+      '<div class="notif-from">From Fluentex Admin · '+ts+'</div>'+
+    '</div>'+
+    '<button class="notif-dismiss" title="Dismiss">✕</button>';
+  card.querySelector('.notif-dismiss').addEventListener('click',function(){card.remove();});
   card.onclick=function(e){if(!e.target.classList.contains('notif-dismiss'))card.remove();};
   tray.appendChild(card);
-  setTimeout(function(){if(card.parentNode){card.style.transition='opacity .4s,transform .4s';card.style.opacity='0';card.style.transform='translateY(-12px) scale(.95)';setTimeout(function(){card.remove();},420);}},10000);
+  // Shake the bell
+  var btn=document.getElementById('notif-bell-btn');
+  if(btn){btn.style.animation='none';setTimeout(function(){btn.style.animation='';},50);}
+  setTimeout(function(){
+    if(card.parentNode){
+      card.style.transition='opacity .4s,transform .4s';
+      card.style.opacity='0';card.style.transform='translateY(-12px) scale(.95)';
+      setTimeout(function(){card.remove();},420);
+    }
+  },10000);
 }
+
+/* ── Start polling ── */
 function startNotifPolling(){
+  _npLoad();
+  _npUpdateBadge();
   checkNotifications();
-  if(_notifTimer)clearInterval(_notifTimer);
-  _notifTimer=setInterval(checkNotifications,45000);
+  if(_npTimer) clearInterval(_npTimer);
+  _npTimer = setInterval(checkNotifications, 30000);
+  _npInitChannel();
 }
+
 window.addEventListener('DOMContentLoaded',function(){
-  setTimeout(function(){if(U&&U.name)startNotifPolling();},2500);
+  setTimeout(function(){if(U&&U.name) startNotifPolling();},2500);
 });
 </script>
 </body>
