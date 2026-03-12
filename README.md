@@ -1,5 +1,5 @@
 # 🏆 Fluentex — AI-Powered English Learning Platform
-### Version 1.6.0 BETA
+### Version 1.7.0 BETA
 
 > *Learn English the smart way — adaptive AI quizzes, real-time flashcards, global leaderboards, and streak tracking. All in a single HTML file.*
 
