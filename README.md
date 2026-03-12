@@ -284,4 +284,4 @@ This software is proprietary. Unauthorised reproduction, distribution, or modifi
 
 ---
 
-*Made with ❤️ in India · Fluentex v1.6.0 BETA*
+*Made with ❤️ in India · Fluentex v1.7.0 BETA*
