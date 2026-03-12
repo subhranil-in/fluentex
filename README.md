@@ -1,287 +1,357 @@
 # 🏆 Fluentex — AI-Powered English Learning Platform
-### Version 1.7.0 BETA
 
-> *Learn English the smart way — adaptive AI quizzes, real-time flashcards, global leaderboards, and streak tracking. All in a single HTML file.*
-
----
-
-## 📌 Overview
-
-**Fluentex** is a fully self-contained, browser-based English learning platform built in the spirit of Duolingo. It uses the **Anthropic Claude AI API** to generate adaptive flashcards, quizzes, and daily vocabulary — all personalised to your CEFR level and performance history.
-
-No installation. No server. No sign-up. Just open the HTML file in any modern browser and start learning.
+> **Version:** v1.8.0 BETA &nbsp;|&nbsp; **Built by:** SubhraniL &nbsp;|&nbsp; **© 2026 Classify Technologies LLC**
 
 ---
 
-## ✨ Features
+## Table of Contents
 
-### 🤖 AI-Powered Learning
-- **Adaptive Flashcards** — 5 AI-generated flashcards per session, tailored to your chosen CEFR level and category
-- **Adaptive Quiz Engine** — 6 questions per quiz; the AI analyses your weak areas and biases 60% of questions toward them
-- **Word of the Day** — A fresh vocabulary word generated daily by AI (cached by IST timezone, refreshes at midnight)
-- **Fallback Content** — Full offline-capable fallback with 5 flashcards and 6 quiz questions per category if the API is unavailable
-
-### 📊 Progress & Performance
-- **6 CEFR Levels** — A1 Starter · A2 Elementary · B1 Intermediate · B2 Upper-Intermediate · C1 Advanced · C2 Expert
-- **6 Categories** — Vocabulary · Grammar · Idioms & Phrases · Spelling · Conversation · Reading & Inference
-- **Per-Category Accuracy Dashboard** — Colour-coded performance pills (green ≥75%, yellow ≥50%, red <50%)
-- **XP System** — Earn 15–25 XP per correct answer; level up every 100 XP
-- **Streak Tracking** — Daily streaks tracked in IST timezone; streak bonus (+20 XP) for scoring ≥80%
-- **Hearts System** — 5 hearts per quiz; lose one per wrong answer
-
-### 🏅 Badges (16 Total)
-| Badge | Requirement |
-|---|---|
-| 🌟 First Step | Complete 1 quiz |
-| 🔥 On Fire | 3-day streak |
-| 🏅 Week Warrior | 7-day streak |
-| 💎 Diamond Habit | 30-day streak |
-| ⚡ Spark | Earn 100 XP |
-| 🏆 Champion | Earn 500 XP |
-| 👑 Master | Earn 1,000 XP |
-| 🌌 Legend | Earn 5,000 XP |
-| 📚 Bookworm | Complete 5 quizzes |
-| 🎓 Scholar | Complete 20 quizzes |
-| 🏛️ Professor | Complete 50 quizzes |
-| 🎯 Sharpshooter | 100% accuracy on a quiz |
-| 💨 Speed Demon | Complete a quiz in under 60 seconds |
-| 📖 Word Wizard | 50 vocabulary questions correct |
-| ✏️ Grammar Guru | 50 grammar questions correct |
-| 🌈 Renaissance | Play all 6 categories |
-
-### 🌐 Global Leaderboard
-- **Real-time cross-session sync** via `window.storage` shared API
-- **Cross-tab live updates** via the browser `BroadcastChannel` API
-- Parallel batch-fetching of up to 80 remote entries
-- Automatically merges remote and local data
-- Polls for updates every 30 seconds
-- Gracefully falls back to localStorage if shared storage is unavailable
-
-### 🎨 UI & Experience
-- **Dark / Light theme** toggle via the sidebar (persisted across sessions)
-- **Duolingo-style typography** — Nunito font (900 weight for headings, 700–800 for body)
-- **Smooth animations** — spring curves, card slide-ins, confetti on good results, XP pop-ups, ripple effects
-- **Particle background** — twinkling stars + floating nodes with connecting lines (adapts to theme)
-- **3D flip flashcards** — perspective card flip with front/back faces
-- **Sidebar navigation** — hamburger menu with stats, theme toggle, nav links, and legal links
-- **Fully responsive** — `clamp()`-based fluid layout from 360px phones to 1600px+ monitors; `viewport-fit=cover` for iPhone notch support
+1. [Overview](#overview)
+2. [Getting Started](#getting-started)
+3. [Features](#features)
+   - [AI Flashcard Training](#ai-flashcard-training)
+   - [Adaptive Quiz Engine](#adaptive-quiz-engine)
+   - [CEFR Levels & Categories](#cefr-levels--categories)
+   - [Progress & XP System](#progress--xp-system)
+   - [Badge System](#badge-system)
+   - [Global Leaderboard](#global-leaderboard)
+   - [Word of the Day](#word-of-the-day)
+   - [Community Chat](#community-chat)
+   - [Push Notifications](#push-notifications)
+   - [Feedback System](#feedback-system)
+4. [Architecture](#architecture)
+5. [Storage Keys Reference](#storage-keys-reference)
+6. [BroadcastChannels Reference](#broadcastchannels-reference)
+7. [Technology Stack](#technology-stack)
+8. [Deployment](#deployment)
+9. [Known Limitations](#known-limitations)
 
 ---
 
-## 🗂️ App Screens
+## Overview
 
-| Screen | Description |
-|---|---|
-| **Splash** | Animated logo with loading bar, auto-advances after 2.4s |
-| **Home** | Greeting, hero CTA, Word of the Day, XP progress, performance dashboard, level grid, global leaderboard |
-| **Level Select** | 6 CEFR level cards with colour-coded borders and hover effects |
-| **Category Select** | 6 category cards showing per-category accuracy badges |
-| **Training** | 3D flip flashcard mode with confidence rating (Got it / Learning / Tricky) |
-| **Quiz** | Adaptive quiz with 3 question types; progress bar and hearts |
-| **Results** | Trophy, accuracy, XP earned, time taken, streak bonus, confetti |
-| **Badges** | Full badge showcase — earned (gold glow) vs locked (greyscale) |
+Fluentex is a fully self-contained, single-HTML-file English learning platform powered by the Anthropic Claude API. It requires no backend server, no database, and no build step — open the file in any modern browser and it works immediately.
+
+Learners progress through CEFR-aligned levels (A1 → C2), study AI-generated flashcards, take adaptive quizzes that adjust to their strengths and weaknesses, track streaks and XP, earn badges, compete on a global leaderboard, and interact with the broader Fluentex community in real time.
 
 ---
 
-## 🧩 Question Types
+## Getting Started
 
-1. **Multiple Choice (MCQ)** — 4 options, keyboard shortcut keys 1–4 supported
-2. **Fill in the Blank** — Free-text input, case-insensitive, supports `/`-separated alternative answers
-3. **Word Arrange** — Tap words from a bank to build a sentence; tap placed words to remove them
+1. Open `fluentex.html` in any modern browser (Chrome, Firefox, Edge, Safari).
+2. On the splash screen, enter your display name and choose your country flag.
+3. You are taken to the home screen. Your profile is saved automatically.
+4. Tap **⚡ Start Learning** to choose a CEFR level and topic, study flashcards, then take the quiz.
 
----
-
-## 💾 Data Storage
-
-All user data is stored **locally in the browser** (localStorage + sessionStorage dual-save for resilience):
-
-| Key | Contents |
-|---|---|
-| `fx_pro_v6` | Full user profile (name, XP, streak, badges, perf stats, hearts) |
-| `fx_lb_v6` | Local leaderboard cache (up to 100 entries, sorted by XP) |
-| `fx_wod_v5` | Word of the Day cache (keyed by IST date) |
-| `fx_theme_v5` | Theme preference (dark / light) |
-| `fluentex_lb:{name}` | Global leaderboard entry (shared storage, public) |
-
-### 🔄 Save Migration
-Fluentex automatically migrates data from all previous storage key versions:
-- `fx_pro_v5` → `fluentex_pro_v4` → `fluentex_pro_v3` → `fluentex_profile_v2`
-
-Your progress is **never lost on updates**.
+No account, login, or internet connection is required for core learning features. An internet connection is needed only for AI-generated content (flashcards, quizzes, Word of the Day) and the Community Chat.
 
 ---
 
-## 🤖 AI Integration
+## Features
 
-- **Model:** `claude-sonnet-4-20250514`
-- **Endpoint:** `https://api.anthropic.com/v1/messages`
-- **API Key:** Handled externally (injected at runtime by the hosting environment)
+### AI Flashcard Training
 
-### AI Calls Made Per Session
-| Call | Purpose | Fallback |
-|---|---|---|
-| `fetchFlashcards` | 5 CEFR-aware flashcards per category | `FB` object (5 cards × 6 categories) |
-| `beginQuiz` | 6 adaptive questions with performance context | `FBQ` object (6 questions × 6 categories) |
-| `loadWoD` | Daily vocabulary word (cached) | `WODFB` array (7 fallback words) |
+Before each quiz, Fluentex generates a set of 5 AI flashcards tailored to the selected CEFR level and category. Each card presents a target word or phrase with its definition, example sentence, and part of speech — all generated on demand by `claude-sonnet-4-20250514`.
 
-### Performance Context Injection
-Before generating a quiz, Fluentex builds a `perfCtx()` string summarising the user's accuracy per category and instructs the AI to bias 60% of questions toward weak areas.
+Cards are navigated with swipe-style Next/Previous controls. Progress dots at the top show how many cards remain.
 
 ---
 
-## 📁 File Structure
+### Adaptive Quiz Engine
 
-Fluentex is delivered as a **single self-contained HTML file**:
+Each quiz session contains **10 questions** generated live by the AI based on:
+
+- The selected CEFR level (A1–C2)
+- The selected topic category
+- The learner's historical accuracy per category (stored in `U.perf`)
+
+Question types include multiple choice (4 options), fill-in-the-blank, and sentence correction. The AI is instructed to focus on the learner's weakest sub-topics, making each session progressively more targeted.
+
+After each question the learner receives instant feedback — correct/incorrect, with an explanation. At the end, a results screen shows:
+
+| Stat | Description |
+|------|-------------|
+| Score | Questions correct out of 10 |
+| XP Earned | Based on score and accuracy |
+| Streak | Current daily streak |
+| Accuracy | Running accuracy per category |
+
+Bonus XP is awarded for perfect scores (100%) and fast completions.
+
+---
+
+### CEFR Levels & Categories
+
+**6 CEFR Levels**
+
+| Code | Name | Description |
+|------|------|-------------|
+| A1 | Starter | Basic words, greetings & simple phrases |
+| A2 | Elementary | Everyday words and simple exchanges |
+| B1 | Intermediate | Can handle most situations |
+| B2 | Upper-Intermediate | Understands complex text with real fluency |
+| C1 | Advanced | Effective, flexible language use |
+| C2 | Expert | Near-native mastery |
+
+**6 Topic Categories**
+
+| Category | Focus |
+|----------|-------|
+| 📖 Vocabulary | Word meanings, synonyms & usage |
+| ✍️ Grammar | Tenses, articles, sentence structure |
+| 💬 Idioms & Phrases | Native expressions & phrasal verbs |
+| 🔤 Spelling | Master tricky English spellings |
+| 🗣️ Conversation | Social phrases & real-world dialogue |
+| 📚 Reading | Comprehension & text analysis |
+
+---
+
+### Progress & XP System
+
+**XP (Experience Points)** are earned by completing quizzes. Bonus XP is given for:
+- Perfect scores (+20 XP bonus)
+- Fast completions (+10 XP bonus)
+
+**Levels** are based on cumulative XP with increasing thresholds:
+
+| Rank | Description |
+|------|-------------|
+| Beginner | Starting rank |
+| Learner | First milestone |
+| Explorer | Mid-tier progress |
+| Scholar | Dedicated learner |
+| Master | Advanced stage |
+| Legend | Near top tier |
+| Grandmaster | Highest rank |
+
+**Hearts** represent lives (max 5). A wrong answer costs one heart. Hearts regenerate over time.
+
+**Daily Streak** tracks consecutive days of activity. Missing a day resets the streak to zero.
+
+**Weekly XP** resets every Monday at midnight and drives the weekly leaderboard rankings.
+
+---
+
+### Badge System
+
+Fluentex has **33 achievement badges** across 7 categories:
+
+**🔥 Streak Badges**
+`Getting Started` · `Week Warrior` · `Fortnight Fighter` · `Diamond Habit` · `Iron Will` · `Century Champion`
+
+**⚡ XP Badges**
+`Spark` · `Dynamo` · `Champion` · `Master` · `Legend` · `Grandmaster`
+
+**📚 Quiz Count Badges**
+`First Step` · `Bookworm` · `Studious` · `Scholar` · `Professor` · `Genius`
+
+**🎯 Accuracy Badges**
+`Sharpshooter` · `Marksman` · `Sniper`
+
+**⚡ Speed Badges**
+`Speed Demon` · `Hyperdrive`
+
+**📖 Topic Mastery Badges**
+`Word Wizard` · `Lexicon Master` · `Grammar Guru` · `Syntax Sage` · `Phrase Whisperer` · `Deep Reader`
+
+**🌟 Special Badges**
+`Renaissance` · `Polyglot` · `Comeback Kid` · `Crowd Pleaser`
+
+New badge awards trigger a full-screen confetti celebration with a toast notification.
+
+---
+
+### Global Leaderboard
+
+The home screen shows two live leaderboard views:
+
+- **Weekly Top 10** — ranked by XP earned since the current Monday
+- **All-Time ranking** — shows the learner's personal all-time position
+
+The leaderboard auto-refreshes every **30 seconds** via `setInterval`.
+
+**Simulated global activity** — 20 international bot learners are seeded into the leaderboard to simulate a global community. They gain XP organically every 45 seconds to 4 minutes, keeping the board active even with a single real user. Bots are indistinguishable from real users by design. Their names and flags represent learners from India, China, Japan, South Korea, Germany, Brazil, UK, Egypt, UAE, Vietnam, Mexico, Philippines, Indonesia, Senegal, and Nigeria.
+
+---
+
+### Word of the Day
+
+Every session, a new English word is fetched from the AI (cached in localStorage for 24 hours). The Word of the Day card on the home screen shows:
+- The word
+- Part of speech
+- Full definition
+- Example sentence in context
+
+---
+
+### Community Chat
+
+A full real-time global chat room accessible from the home screen or sidebar. Features:
+
+**Chat Feed (Global Chat tab)**
+- Messages rendered newest-at-bottom with coloured avatar initials
+- Date dividers group messages by day
+- Each message supports **👍 Like**, **👎 Dislike**, **↩ Reply**, and **👤 View Profile**
+- Clicking a reply quote scrolls to the original message
+- Own messages are highlighted with a blue border
+
+**Members Panel (Members tab)**
+- Lists every user who has chatted
+- Inline **Follow / Unfollow** buttons per user
+- XP and message count shown per member
+
+**Profile Modal**
+- Click any name or avatar to open a profile card
+- Shows XP, streak, message count, and Follow/Unfollow button
+
+**Follow System**
+- Follow or unfollow any user
+- Following state persisted in `fx_follows_v1` (localStorage)
+
+**🛡️ FluentexMod (Automatic Moderator)**
+- Posts a daily welcome message setting community guidelines
+- Every message is scanned for phone numbers using the regex `(\+?\d[\d\s\-\.()]{7,}\d)`
+- Phone numbers trigger automatic removal and a public moderator warning tagging the user
+
+**Bot Activity**
+- The 20 leaderboard bots also participate in chat every 20–60 seconds
+- 70% of the time they post original learning tips and encouragement
+- 30% of the time they reply to recent real user messages with reactions
+- Bots appear as regular community members with no distinguishing label
+
+**Real-time sync** via `BroadcastChannel('fluentex_chat')` with 4-second localStorage polling as fallback.
+
+---
+
+### Push Notifications
+
+Admins can push notifications to individual users or all users from the Admin Panel. Notifications are delivered via:
+
+1. **BroadcastChannel** — instant delivery if user and admin share the same browser
+2. **localStorage polling** — 30-second polling for cross-session delivery
+
+Users see a **🔔 bell icon** in the navigation bar with a red badge showing the unread count. The bell shakes when new notifications arrive.
+
+The notification panel supports:
+- All / Unread tabs
+- Per-notification read/delete
+- Mark all as read
+- Clear all
+- Brief slide-in toast for each new notification
+
+---
+
+### Feedback System
+
+Two feedback options available from footer links on all screens:
+
+- **💡 Suggest a Feature** — submit a category (UI/UX, AI/Content, Performance, New Feature, Other) and message
+- **🐛 Report Bug** — submit a bug report with severity level (Low / Medium / High / Critical) and description
+
+All submissions are stored locally in `fx_suggests_local` and `fx_bugs_local` and broadcast to the Admin Panel in real time via `BroadcastChannel('fluentex_lb')`.
+
+---
+
+## Architecture
+
+Fluentex is a **zero-dependency single-file SPA** (Single Page Application).
 
 ```
-fluentex.html          ← Everything: HTML + CSS + JavaScript (~140 KB)
-README.md              ← This file
+fluentex.html
+├── <head>         Google Fonts (Nunito), inline CSS (~600 lines)
+├── <body>
+│   ├── Sidebar overlay + Sidebar drawer
+│   ├── Screens (display:none / .active)
+│   │   ├── #home               — Dashboard, leaderboard, WoD
+│   │   ├── #community          — Global chat room
+│   │   ├── #level-screen       — CEFR level picker
+│   │   ├── #category-screen    — Topic category picker
+│   │   ├── #training-screen    — AI Flashcard training
+│   │   ├── #quiz-screen        — Adaptive quiz
+│   │   ├── #results-screen     — Post-quiz results
+│   │   └── #badges             — Badge gallery
+│   ├── Modals (name, TOS, privacy, suggestions, bugs, profile, legal)
+│   ├── Notification tray (#notif-tray)
+│   ├── Canvas layers (background particles + confetti)
+│   └── <script>  ~3,000 lines of application logic
+└── Notification script block (BroadcastChannel + polling)
 ```
 
-No build step. No dependencies to install. No CDN required beyond Google Fonts.
+**Screen navigation** is handled by `showScreen(id)` which toggles the `.active` class. There is no routing library.
 
-**External resources loaded at runtime:**
-- `fonts.googleapis.com` — Nunito font family
-- `flagcdn.com` — Country flag images (with emoji fallback)
-- `api.anthropic.com` — Claude AI API for content generation
+**API calls** go directly to `https://api.anthropic.com/v1/messages` from the browser using `fetch()`. The Anthropic API key must be available (handled by the hosting environment or injected via a proxy).
 
 ---
 
-## 🚀 Getting Started
+## Storage Keys Reference
 
-### Option 1 — Open Directly
-Simply double-click `fluentex.html` in any modern browser. No server needed.
+All data is stored in `localStorage` (with `sessionStorage` as fallback for profile data).
 
-### Option 2 — Serve Locally
-```bash
-# Python
-python3 -m http.server 8080
-
-# Node.js
-npx serve .
-```
-Then open `http://localhost:8080/fluentex.html`
-
-### Option 3 — Deploy to Web
-Upload `fluentex.html` to any static hosting:
-- GitHub Pages
-- Netlify (drag & drop)
-- Vercel
-- Cloudflare Pages
-- Amazon S3 + CloudFront
+| Key | Type | Contents |
+|-----|------|----------|
+| `fx_pro_v5` | Object | User profile (name, flag, XP, streak, hearts, badges, perf stats, quizzes) |
+| `fx_lb_v6` | Array | Leaderboard entries (all users + bots, up to 120) |
+| `fx_bots_v2` | Array | Bot learner states (XP, streak, weekXp, next update time) |
+| `fx_wod_v5` | Object | Word of the Day cache (word, definition, date) |
+| `fx_theme_v5` | String | `"dark"` or `"light"` |
+| `fx_chat_v2` | Array | Community chat messages (up to 300) |
+| `fx_follows_v1` | Array | Names of users the current learner follows |
+| `fx_suggests_local` | Array | Feature suggestions submitted by user |
+| `fx_bugs_local` | Array | Bug reports submitted by user |
+| `fx_notif_store_v2` | Array | Received push notifications (up to 200) |
+| `fx_notif_seen_v2` | Array | IDs of notifications already read |
+| `fx_notifs_broadcast` | Array | Admin broadcast notifications |
+| `fx_notifs_u_{slug}` | Array | User-targeted notifications (slug = name, lowercase, max 24 chars) |
 
 ---
 
-## 🌐 Browser Compatibility
+## BroadcastChannels Reference
 
-| Browser | Support |
-|---|---|
-| Chrome 90+ | ✅ Full |
-| Firefox 88+ | ✅ Full |
-| Safari 14+ | ✅ Full |
-| Edge 90+ | ✅ Full |
-| Mobile Chrome | ✅ Full |
-| Mobile Safari | ✅ Full (viewport-fit=cover) |
-| IE 11 | ❌ Not supported |
-
-**Required browser features:** CSS Custom Properties, CSS Grid, `backdrop-filter`, `clamp()`, `BroadcastChannel`, `fetch`, `async/await`
+| Channel | Direction | Payload |
+|---------|-----------|---------|
+| `fluentex_lb` | App → Admin | `{type:'new_feedback', item: entry}` — new suggestion or bug report |
+| `fluentex_notif` | Admin → App | `{type:'push_notif', notif: notif}` — push notification |
+| `fluentex_chat` | Bidirectional | `{type:'chat_update', ts: number}` — chat updated, re-render |
 
 ---
 
-## ⌨️ Keyboard Shortcuts
+## Technology Stack
 
-| Key | Action |
-|---|---|
-| `1` `2` `3` `4` | Select MCQ option A/B/C/D |
-| `Enter` | Submit answer (when enabled) |
-
----
-
-## 📱 Responsive Breakpoints
-
-| Breakpoint | Behaviour |
-|---|---|
-| `≥ 1600px` | Max container width 1100px; 3-column level/category grids |
-| `1200px–1600px` | 3-column grids; standard layout |
-| `768px–1200px` | 2-column grids; full nav |
-| `480px–768px` | 1-column grids; hero paragraph hidden on small screens |
-| `≤ 480px` | Streak display hidden; HP stat hidden; beta tag hidden |
-| `≤ 360px` | Fire streak stat hidden; minimal nav |
+| Component | Technology |
+|-----------|-----------|
+| Language | Vanilla JavaScript (ES6+, no frameworks) |
+| Styling | Hand-written CSS with CSS custom properties (dark/light themes) |
+| Font | Google Fonts — Nunito |
+| AI Model | `claude-sonnet-4-20250514` (Anthropic Claude API) |
+| Storage | `localStorage` + `sessionStorage` |
+| Real-time | Web `BroadcastChannel` API |
+| Animations | CSS keyframes + `cubic-bezier` easing |
+| Canvas | HTML5 Canvas (background particles + confetti) |
 
 ---
 
-## 🏗️ Architecture
+## Deployment
 
-### State Objects
-```javascript
-U = {
-  name, flag, xp, streak, hearts, maxHearts,
-  lastDay, quizzes, perfectQuizzes, fastQuizzes,
-  badges[], catsPlayed{},
-  perf: {
-    vocabulary: {c, w},  // correct, wrong
-    grammar:    {c, w},
-    idioms:     {c, w},
-    spelling:   {c, w},
-    conversation:{c, w},
-    reading:    {c, w}
-  }
-}
+Because Fluentex calls the Anthropic API directly from the browser, you need either:
 
-tr = { cards[], idx, flipped, done[] }           // Training state
-qz = { questions[], idx, correct, wrong, t0,     // Quiz state
-       answered, mcqSel, arranged[], arrAns, label }
-```
+**Option A — Proxy server:** Host a lightweight proxy that injects the API key server-side and forwards requests to `https://api.anthropic.com/v1/messages`.
 
-### Key Functions
-| Function | Purpose |
-|---|---|
-| `init()` | Bootstrap: theme, flags, canvas, profile load, routing |
-| `loadProfileWithMigration()` | Load profile with legacy key fallback |
-| `applyProfile(p)` | Merge profile into state with default filling |
-| `checkStreak()` | Compare IST dates and increment/reset streak |
-| `beginQuiz()` | Fetch AI quiz with performance context |
-| `pickCat(id)` | Fetch AI flashcards for selected level + category |
-| `loadWoD()` | Load or fetch Word of the Day (IST date cache) |
-| `fetchGlobalLB()` | Fetch + merge global + local leaderboard |
-| `pushLBEntry()` | Push score to localStorage + BroadcastChannel + shared storage |
-| `awardBadges()` | Check all 16 badge conditions and award with toast |
-| `perfCtx()` | Build AI performance context string |
-| `renderPerf()` | Render per-category accuracy dashboard |
-| `toggleTheme()` | Switch dark/light theme + persist |
-| `openSidebar()` / `closeSidebar()` | Sidebar open/close with overlay |
-| `openLegal(which)` | Open Terms of Use or Privacy Policy modal |
-| `doConfetti()` | Full-screen confetti canvas animation |
-| `initBg()` | Stars + particle nodes background canvas |
+**Option B — Cloudflare Worker / Edge Function:** Use a Worker to proxy API calls and add the `Authorization` header.
+
+**Option C — Local use:** Open the file locally in a browser that has the API key pre-injected (e.g. via a browser extension or local dev proxy).
+
+The file itself has no external dependencies beyond Google Fonts (loaded from CDN) and the Anthropic API endpoint. It works offline for all non-AI features.
 
 ---
 
-## 📜 Legal
+## Known Limitations
 
-- **Terms of Use** — Accessible in every page footer and the sidebar
-- **Privacy Policy** — Accessible in every page footer and the sidebar
-- **Data** — No external tracking, no cookies, no analytics. All data stays in your browser except leaderboard entries which are stored in shared storage.
-
----
-
-## 👨‍💻 Credits
-
-| Role | Credit |
-|---|---|
-| **Developer** | SubhraniL |
-| **Publisher** | Classify Technologies LLC |
-| **AI Engine** | Anthropic Claude (claude-sonnet-4) |
-| **Font** | Nunito — Google Fonts |
-| **Flags** | flagcdn.com |
+- **Single-user storage** — localStorage is per-browser. Two users on the same device share storage if they use the same browser profile.
+- **No real cross-device sync** — leaderboard and chat data is stored locally. The `window.storage` API (Claude.ai-specific) was intentionally removed in v1.7.0 in favour of localStorage for standard browser compatibility.
+- **Bot activity is local** — bot score updates and chat messages are generated client-side. Each browser instance runs its own bot engine independently.
+- **API key exposure** — if deployed as a public file, the Anthropic API key will be visible in network requests. Always proxy API calls in production.
+- **No moderation persistence across devices** — chat moderation actions (delete/restore) only propagate to other tabs in the same browser via BroadcastChannel.
 
 ---
 
-## 📄 License
-
-© 2026 Classify Technologies LLC. All Rights Reserved.
-
-This software is proprietary. Unauthorised reproduction, distribution, or modification of any part of this software is strictly prohibited without written permission from Classify Technologies LLC.
-
----
-
-*Made with ❤️ in India · Fluentex v1.7.0 BETA*
+*Made with ❤️ in India · Developed by SubhraniL · © 2026 Classify Technologies LLC*
